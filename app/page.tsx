@@ -41,6 +41,12 @@ export default function Home() {
   const [reqData, setReqData] = useState({ nama: "", barang: "", jumlah: "", keterangan: "" });
   const [isSubmittingReq, setIsSubmittingReq] = useState(false);
 
+  // === STATE BARU: FITUR PENGEMBALIAN BARANG ===
+  const [showReturnModal, setShowReturnModal] = useState(false);
+  const [activeLoans, setActiveLoans] = useState<any[]>([]);
+  const [isFetchingLoans, setIsFetchingLoans] = useState(false);
+  const [isReturning, setIsReturning] = useState(false);
+
   // === STATE BARU: FITUR PENCARIAN LOKASI ===
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -278,6 +284,66 @@ export default function Home() {
     }
   };
 
+  // === FUNGSI FETCH PINJAMAN AKTIF ===
+  const fetchActiveLoans = async () => {
+    if (!nomorPegawai.trim()) return alert("⚠️ Silakan masukkan Employee ID terlebih dahulu!");
+
+    setIsFetchingLoans(true);
+    try {
+      const { data, error } = await supabase
+        .from("transactions")
+        .select("*")
+        .eq("nomor_pegawai", nomorPegawai)
+        .eq("transaction_type", "LOAN")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setActiveLoans(data || []);
+      setShowReturnModal(true);
+    } catch (err) {
+      console.error("Gagal mengambil data pinjaman:", err);
+      alert("❌ Gagal mengambil data pinjaman.");
+    } finally {
+      setIsFetchingLoans(false);
+    }
+  };
+
+  // === FUNGSI PROSES PENGEMBALIAN ===
+  const handleProsesReturn = async (transactionId: number, inventoryId: number, statusAkhir: "HABIS" | "SISA") => {
+    if (isReturning) return;
+    setIsReturning(true);
+
+    try {
+      // Update transaction type
+      const newTransactionType = statusAkhir === "HABIS" ? "RETURN_HABIS" : "RETURN_SISA";
+      const { error: txError } = await supabase
+        .from("transactions")
+        .update({ transaction_type: newTransactionType })
+        .eq("id", transactionId);
+
+      if (txError) throw txError;
+
+      // If status is SISA, update inventory rack_type to USED
+      if (statusAkhir === "SISA") {
+        const { error: invError } = await supabase
+          .from("inventory")
+          .update({ rack_type: "USED" })
+          .eq("id", inventoryId);
+
+        if (invError) throw invError;
+      }
+
+      // Remove item from local state
+      setActiveLoans(prevLoans => prevLoans.filter(loan => loan.id !== transactionId));
+      alert("✅ Pengembalian berhasil dicatat!");
+    } catch (err) {
+      console.error("Gagal memproses pengembalian:", err);
+      alert("❌ Gagal memproses pengembalian.");
+    } finally {
+      setIsReturning(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 pb-20">
       {/* HEADER (STAYS NOTION STYLE) */}
@@ -317,7 +383,21 @@ export default function Home() {
                 START SCANNING
               </button>
 
-              <div className="grid grid-cols-2 gap-4 pt-8 mt-8 border-t border-slate-100">
+              <div className="grid grid-cols-3 gap-4 pt-8 mt-8 border-t border-slate-100">
+                <div className="flex flex-col">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Return Item?</p>
+                  <button 
+                    onClick={fetchActiveLoans} 
+                    disabled={!nomorPegawai.trim()} 
+                    className={`w-full flex-1 ${
+                      !nomorPegawai.trim() 
+                        ? "bg-slate-100 border-2 border-slate-200 text-slate-300 cursor-not-allowed" 
+                        : "bg-white hover:bg-green-50 text-green-600 border-2 border-green-100"
+                    } font-bold py-4 px-2 rounded-2xl transition-all active:scale-95 text-xs flex justify-center items-center gap-2`}
+                  >
+                    <span className="text-lg leading-none">🔄</span> Return Item
+                  </button>
+                </div>
                 <div className="flex flex-col">
                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-3">Item location?</p>
                   <button onClick={openSearchModal} className="w-full flex-1 bg-white hover:bg-blue-50 text-blue-600 font-bold py-4 px-2 rounded-2xl border-2 border-blue-100 transition-all active:scale-95 text-xs flex justify-center items-center gap-2">
@@ -549,6 +629,67 @@ export default function Home() {
               )}
             </div>
 
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: PENGEMBALIAN BARANG */}
+      {showReturnModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-300 border border-slate-200">
+            <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 text-slate-900">
+              <div>
+                <h2 className="font-black text-xl tracking-tight">Return Item</h2>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">Return borrowed items</p>
+              </div>
+              <button onClick={() => setShowReturnModal(false)} className="w-10 h-10 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-full flex items-center justify-center font-bold transition-colors">✕</button>
+            </div>
+            <div className="p-8 overflow-y-auto">
+              {isFetchingLoans ? (
+                <div className="flex flex-col items-center justify-center py-10">
+                  <div className="animate-spin w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full mb-4"></div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Memuat pinjaman...</p>
+                </div>
+              ) : activeLoans.length > 0 ? (
+                <div className="space-y-4">
+                  {activeLoans.map((loan) => (
+                    <div key={loan.id} className="bg-slate-50 p-5 rounded-2xl border border-slate-200 shadow-sm">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="pr-4">
+                          <h3 className="font-black text-slate-800 leading-tight">{loan.part_name}</h3>
+                          <p className="text-[10px] font-mono text-slate-400 mt-1">{loan.part_number || "No PN"}</p>
+                        </div>
+                        <div className="shrink-0 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider bg-orange-50 text-orange-600 border border-orange-100">
+                          Dipinjam: {Math.abs(loan.jumlah)}
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button 
+                          onClick={() => handleProsesReturn(loan.id, loan.inventory_id, "SISA")} 
+                          disabled={isReturning}
+                          className="w-full bg-green-600 hover:bg-green-700 text-white font-black py-3 rounded-2xl transition-all text-sm disabled:opacity-50"
+                        >
+                          KEMBALIKAN (SISA)
+                        </button>
+                        <button 
+                          onClick={() => handleProsesReturn(loan.id, loan.inventory_id, "HABIS")} 
+                          disabled={isReturning}
+                          className="w-full bg-red-600 hover:bg-red-700 text-white font-black py-3 rounded-2xl transition-all text-sm disabled:opacity-50"
+                        >
+                          DIBUANG (HABIS)
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-10">
+                  <div className="text-4xl mb-4 opacity-50">🎉</div>
+                  <p className="text-slate-500 font-bold text-sm">Tidak ada barang yang sedang Anda pinjam.</p>
+                  <p className="text-xs text-slate-400 mt-1">Semua barang sudah dikembalikan!</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
