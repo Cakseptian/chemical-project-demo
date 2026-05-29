@@ -58,6 +58,8 @@ export default function AdminDashboard() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [isSavingItem, setIsSavingItem] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
+  const [isBulk, setIsBulk] = useState<boolean>(false);
+  const [uom, setUom] = useState<string>("Pieces");
   const [formData, setFormData] = useState({
     part_name: "",
     part_number: "",
@@ -66,6 +68,9 @@ export default function AdminDashboard() {
     barcode_id: "",
     expired_date: "",
     batch_number: "",
+    isBulk: false,
+    uom: "Pieces",
+    rack_type: "NEW",
   });
 
   // --- FUNGSI LOGIN ---
@@ -230,12 +235,27 @@ export default function AdminDashboard() {
 
   const openAddModal = () => {
     setEditId(null);
-    setFormData({ part_name: "", part_number: "", location: "", quantity: "", barcode_id: "", expired_date: "", batch_number: "" });
+    setIsBulk(false);
+    setUom("Pieces");
+    setFormData({
+      part_name: "",
+      part_number: "",
+      location: "",
+      quantity: "",
+      barcode_id: "",
+      expired_date: "",
+      batch_number: "",
+      isBulk: false,
+      uom: "Pieces",
+      rack_type: "NEW",
+    });
     setShowAddModal(true);
   };
 
   const openEditModal = (item: any) => {
     setEditId(item.id);
+    setIsBulk(item.is_bulk || false);
+    setUom(item.uom || "Pieces");
     setFormData({
       part_name: item.part_name,
       part_number: item.part_number || "",
@@ -244,6 +264,9 @@ export default function AdminDashboard() {
       barcode_id: item.barcode_id,
       expired_date: item.expired_date || "",
       batch_number: item.batch_number || "",
+      isBulk: item.is_bulk || false,
+      uom: item.uom || "Pieces",
+      rack_type: item.rack_type || "NEW",
     });
     setShowAddModal(true);
   };
@@ -265,8 +288,14 @@ export default function AdminDashboard() {
           barcode_id: formData.barcode_id,
           expired_date: formData.expired_date || null,
           batch_number: formData.batch_number || null,
+          is_bulk: isBulk,
+          uom: uom,
+          rack_type: formData.rack_type,
         }).eq("id", editId);
-        if (error) throw error;
+        if (error) {
+          console.log("Error Supabase:", error);
+          throw error;
+        }
         alert("✅ Data barang berhasil diubah!");
       } else {
         const { error } = await supabase.from("inventory").insert([{
@@ -277,8 +306,14 @@ export default function AdminDashboard() {
           barcode_id: formData.barcode_id,
           expired_date: formData.expired_date || null,
           batch_number: formData.batch_number || null,
+          is_bulk: isBulk,
+          uom: uom,
+          rack_type: formData.rack_type,
         }]);
-        if (error) throw error;
+        if (error) {
+          console.log("Error Supabase:", error);
+          throw error;
+        }
         alert("✅ Barang baru berhasil ditambahkan!");
       }
       setShowAddModal(false);
@@ -1294,6 +1329,31 @@ export default function AdminDashboard() {
                       Gen
                     </button>
                   </div>
+                </div>
+
+                <div className="mb-4">
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">Kategori Barang</label>
+                  <select
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "BULK") {
+                        setIsBulk(true);
+                        setUom("Liters");
+                      } else {
+                        setIsBulk(false);
+                        setUom("Pieces");
+                      }
+                    }}
+                  >
+                    <option value="UNIT">Barang Satuan (Botol/Pieces)</option>
+                    <option value="BULK">Cairan Curah (Jirigen/Liters)</option>
+                  </select>
+                </div>
+
+                {/* Tampilkan UOM */}
+                <div className="mb-4 text-sm text-slate-500">
+                  Satuan yang digunakan sistem: <span className="font-bold">{uom}</span>
                 </div>
 
                 <div className="flex gap-4 pt-4">

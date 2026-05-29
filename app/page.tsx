@@ -11,8 +11,10 @@ type CartItem = {
   part_number: string;
   location: string;
   max_quantity: number;
-  quantity_to_take: number;
+  quantity_to_take: number | string;
   barcode_id: string;
+  is_bulk: boolean;
+  uom: string;
 };
 
 export default function Home() {
@@ -25,6 +27,14 @@ export default function Home() {
   const [namaPeminjam, setNamaPeminjam] = useState("");
   const [nomorPegawai, setNomorPegawai] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Load saved nama and nomor from localStorage
+  useEffect(() => {
+    const savedName = localStorage.getItem("gmf_nama");
+    const savedId = localStorage.getItem("gmf_id");
+    if (savedName) setNamaPeminjam(savedName);
+    if (savedId) setNomorPegawai(savedId);
+  }, []);
 
   // === STATE FITUR REQUEST BARANG ===
   const [showReqModal, setShowReqModal] = useState(false);
@@ -112,12 +122,15 @@ export default function Home() {
         const existingItem = prevCart.find((item) => item.id === data.id);
 
         if (existingItem) {
-          if (existingItem.quantity_to_take < existingItem.max_quantity) {
+          // Only increment for non-bulk items
+          if (!existingItem.is_bulk && Number(existingItem.quantity_to_take) < existingItem.max_quantity) {
             return prevCart.map((item) =>
-              item.id === data.id ? { ...item, quantity_to_take: item.quantity_to_take + 1 } : item
+              item.id === data.id ? { ...item, quantity_to_take: Number(item.quantity_to_take) + 1 } : item
             );
           } else {
-            alert(`⚠️ Stok maksimal ${data.part_name} di sistem hanya ${existingItem.max_quantity} unit!`);
+            if (!existingItem.is_bulk) {
+              alert(`⚠️ Stok maksimal ${data.part_name} di sistem hanya ${existingItem.max_quantity} unit!`);
+            }
             return prevCart;
           }
         } else {
@@ -127,8 +140,10 @@ export default function Home() {
             part_number: data.part_number,
             location: data.location,
             max_quantity: Number(data.quantity),
-            quantity_to_take: 1,
-            barcode_id: data.barcode_id
+            quantity_to_take: data.is_bulk ? "" : 1,
+            barcode_id: data.barcode_id,
+            is_bulk: data.is_bulk || false,
+            uom: data.uom || "Pieces"
           }];
         }
       });
@@ -173,7 +188,7 @@ export default function Home() {
   const updateQuantity = (id: number, delta: number) => {
     setCart(prevCart => prevCart.map(item => {
       if (item.id === id) {
-        const newQty = item.quantity_to_take + delta;
+        const newQty = Number(item.quantity_to_take) + delta;
         if (newQty > 0 && newQty <= item.max_quantity) {
           return { ...item, quantity_to_take: newQty };
         }
@@ -186,6 +201,12 @@ export default function Home() {
     setCart(prevCart => prevCart.filter(item => item.id !== id));
   };
 
+  const updateBulkQty = (id: number, val: string) => {
+    setCart(prevCart => prevCart.map(item => 
+      item.id === id ? { ...item, quantity_to_take: val } : item
+    ));
+  };
+
   const handleProsesAmbil = async () => {
     if (!namaPeminjam.trim() || !nomorPegawai.trim()) return alert("⚠️ Nama dan Nomor Pegawai wajib diisi!");
     if (cart.length === 0) return alert("⚠️ Keranjang masih kosong!");
@@ -194,7 +215,8 @@ export default function Home() {
 
     try {
       for (const item of cart) {
-        const sisaStokBaru = (item.max_quantity - item.quantity_to_take).toString();
+        const qtyToTake = Number(item.quantity_to_take);
+        const sisaStokBaru = (item.max_quantity - qtyToTake).toString();
         const { error: errorUpdate } = await supabase
           .from("inventory")
           .update({ quantity: sisaStokBaru })
@@ -202,6 +224,7 @@ export default function Home() {
 
         if (errorUpdate) throw errorUpdate;
 
+        const statusTransaksi = item.is_bulk ? "CONSUMED_BULK" : "LOAN";
         const { error: errorInsert } = await supabase
           .from("transactions")
           .insert([{
@@ -210,16 +233,18 @@ export default function Home() {
             part_number: item.part_number,
             nama_peminjam: namaPeminjam,
             nomor_pegawai: nomorPegawai,
-            jumlah: -item.quantity_to_take
+            jumlah: -qtyToTake,
+            transaction_type: statusTransaksi
           }]);
 
         if (errorInsert) throw errorInsert;
       }
 
       alert(`✅ BERHASIL!\n\n${cart.length} jenis barang telah diproses.`);
+      // Save to localStorage for next time
+      localStorage.setItem("gmf_nama", namaPeminjam);
+      localStorage.setItem("gmf_id", nomorPegawai);
       setCart([]);
-      setNamaPeminjam("");
-      setNomorPegawai("");
 
     } catch (err) {
       console.error("Gagal update database:", err);
@@ -377,11 +402,25 @@ export default function Home() {
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <div className="flex items-center bg-slate-100 rounded-xl overflow-hidden border border-slate-200 shadow-inner">
-                          <button onClick={() => updateQuantity(item.id, -1)} className="w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-800 font-black transition-colors">-</button>
-                          <span className="w-6 text-center font-black text-slate-800 text-sm">{item.quantity_to_take}</span>
-                          <button onClick={() => updateQuantity(item.id, 1)} className="w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-800 font-black transition-colors">+</button>
-                        </div>
+                        {item.is_bulk ? (
+                          <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden px-2">
+                            <input
+                              type="number"
+                              step="0.1"
+                              value={item.quantity_to_take}
+                              onChange={(e) => updateBulkQty(item.id, e.target.value)}
+                              className="w-16 h-8 text-center font-bold text-slate-800 bg-transparent outline-none text-sm"
+                              placeholder="0.0"
+                            />
+                            <span className="text-xs font-black text-slate-400 mr-2">{item.uom}</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center bg-slate-100 rounded-xl overflow-hidden border border-slate-200 shadow-inner">
+                            <button onClick={() => updateQuantity(item.id, -1)} className="w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-800 font-black transition-colors">-</button>
+                            <span className="w-6 text-center font-black text-slate-800 text-sm">{item.quantity_to_take}</span>
+                            <button onClick={() => updateQuantity(item.id, 1)} className="w-8 h-8 flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-800 font-black transition-colors">+</button>
+                          </div>
+                        )}
                         <button onClick={() => removeFromCart(item.id)} className="p-2 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>
