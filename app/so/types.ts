@@ -1,11 +1,12 @@
-// types/index.ts
+// app/so/types.ts
 // ==========================================
 // GMF Inventory Control System - Type Definitions
+// Align dengan Supabase schema
 // ==========================================
 
 /**
  * Inventory Item - Data master barang
- * Align dengan schema Supabase `inventory` table
+ * Table: inventory
  */
 export interface InventoryItem {
   id: number;
@@ -19,14 +20,14 @@ export interface InventoryItem {
   is_bulk: boolean;
   uom: string;
   rack_type: string;
-  alpha: number;        // 🆕 SBA smoothing parameter
-  lead_time: number;    // 🆕 Lead time dalam minggu
+  alpha: number;        // SBA smoothing parameter (0.05-0.50)
+  lead_time: number;    // Lead time dalam minggu
   created_at: string;
 }
 
 /**
  * Transaction Log - Riwayat transaksi
- * Align dengan schema Supabase `transactions` table
+ * Table: transactions
  */
 export interface TransactionLog {
   id: number;
@@ -48,7 +49,7 @@ export interface TransactionLog {
 
 /**
  * Item Request - Permintaan barang dari karyawan
- * Align dengan schema Supabase `item_requests` table
+ * Table: item_requests
  */
 export interface ItemRequest {
   id: number;
@@ -77,7 +78,7 @@ export interface InventoryFormData {
 }
 
 /**
- * Dashboard Statistics - Computed values untuk overview
+ * Dashboard Statistics - Computed values untuk overview tab
  */
 export interface DashboardStats {
   lowStockCount: number;
@@ -91,6 +92,7 @@ export interface DashboardStats {
 
 /**
  * SBA Alert - Extended inventory item dengan forecast data
+ * Returned oleh useSBAAlerts hook
  */
 export interface SBAAlert extends InventoryItem {
   sbaLoan: number;
@@ -103,20 +105,6 @@ export interface SBAAlert extends InventoryItem {
   action: string;
   alpha: number;
   leadTime: number;
-  dataPoints: number;
-  positivePeriods: number;
-}
-
-/**
- * SBA Result - Output dari calculateSBA function
- * (sudah di-define juga di sbaCalculator.ts, re-export untuk convenience)
- */
-export interface SBAResult {
-  forecast: number;
-  croston: number;
-  z: number;
-  p: number;
-  alpha: number;
   dataPoints: number;
   positivePeriods: number;
 }
