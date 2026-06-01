@@ -116,8 +116,8 @@ export const ItemModal = ({
                                 </label>
                                 <input
                                     type="date"
-                                    value={formData.expired_date}
-                                    onChange={(e) => setFormData({ ...formData, expired_date: e.target.value })}
+                                    value={formData.expired_date_fixed}
+                                    onChange={(e) => setFormData({ ...formData, expired_date_fixed: e.target.value })}
                                     className="w-full bg-slate-50 border border-slate-200 rounded-lg p-4 text-sm font-bold text-slate-900 focus:ring-2 focus:ring-[#00ed64] focus:border-transparent outline-none transition-all"
                                 />
                             </div>

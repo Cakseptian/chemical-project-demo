@@ -29,45 +29,45 @@ export const InventoryTab = ({
     onPrintLocationList,
 }: InventoryTabProps) => {
     return (
-        <div className="bg-[#001e2b] text-white rounded-xl shadow-[0_0_0_1px_rgba(255,255,255,0.06)] overflow-hidden animate-in fade-in duration-500">
+        <div className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm animate-in fade-in duration-500">
             {/* HEADER SECTION */}
-            <div className="p-6 md:p-8 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white/5">
+            <div className="px-6 py-5 border-b border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50">
                 <div>
-                    <h2 className="text-2xl font-black text-white tracking-tight">Database Barang</h2>
-                    <p className="text-sm text-white/50 font-medium">Manajemen data master dan pencetakan QR.</p>
+                    <h2 className="text-base font-semibold text-slate-900 tracking-tight">Database Barang</h2>
+                    <p className="text-xs text-slate-500 mt-0.5">Manajemen data master dan pencetakan QR.</p>
                 </div>
-                <div className="flex flex-wrap gap-3 w-full md:w-auto">
+                <div className="flex flex-wrap gap-2 w-full md:w-auto">
                     <button
                         onClick={onPrintLocationList}
-                        className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-transparent hover:bg-white/5 text-white/80 border border-white/10 text-sm font-bold py-3 px-5 rounded-xl transition-all shadow-sm"
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold py-2 px-4 rounded-md transition-colors shadow-sm"
                     >
                         Cetak Label Lokasi
                     </button>
                     <button
                         onClick={onPrintAllQR}
-                        className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-transparent hover:bg-white/5 text-white/80 border border-white/10 text-sm font-bold py-3 px-5 rounded-xl transition-all shadow-sm"
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-semibold py-2 px-4 rounded-md transition-colors shadow-sm"
                     >
                         Cetak Semua QR
                     </button>
                     <button
                         onClick={onAdd}
-                        className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-[#00ed64] hover:bg-[#00b545] text-[#001e2b] text-sm font-black py-3 px-5 rounded-xl transition-all shadow-lg shadow-[0_0_0_1px_rgba(0,237,100,0.25)]"
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-accent hover:bg-accent-dark text-[#001e2b] text-xs font-semibold py-2 px-4 rounded-md transition-colors shadow-sm"
                     >
-                        + Tambah
+                        Tambah Barang
                     </button>
                 </div>
             </div>
 
             {/* SEARCH BAR SECTION */}
-            <div className="p-6 border-b border-white/5">
+            <div className="px-6 py-4 border-b border-slate-200">
                 <div className="relative group max-w-md">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-[#00ed64] transition-colors">🔍</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">🔍</span>
                     <input
                         type="text"
                         placeholder="Cari Nama atau PN..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-11 pr-4 py-2 bg-white/5 shadow-[0_0_0_1px_rgba(255,255,255,0.06)] rounded-lg text-base font-medium text-white placeholder:text-white/20 focus:shadow-[0_0_0_2px_rgba(0,237,100,0.25)] outline-none transition-all"
+                        className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all font-medium"
                     />
                 </div>
             </div>
@@ -75,57 +75,59 @@ export const InventoryTab = ({
             <div className="overflow-x-auto">
                 {isLoading ? (
                     <div className="py-20 text-center">
-                        <div className="animate-spin w-8 h-8 border-2 border-white/20 border-t-white rounded-full mx-auto mb-4"></div>
-                        <p className="text-white/40 font-medium">Memuat database...</p>
+                        <div className="animate-spin w-8 h-8 border-2 border-slate-200 border-t-slate-800 rounded-full mx-auto mb-4"></div>
+                        <p className="text-slate-500 text-xs font-medium">Memuat database...</p>
                     </div>
                 ) : (
-                    <table className="w-full text-left border-collapse">
+                    <table className="w-full">
                         <thead>
-                            <tr className="shadow-[0_1px_0_0_rgba(255,255,255,0.06)] text-white/30 text-[10px] font-black uppercase tracking-widest">
-                                <th className="px-8 py-4">Item Info</th>
-                                <th className="px-8 py-4">Part Number</th>
-                                <th className="px-8 py-4 text-center">Batch Number</th>
-                                <th className="px-8 py-4 text-center">Expired Date</th>
-                                <th className="px-8 py-4 text-center">Location</th>
-                                <th className="px-8 py-4 text-center">Stock</th>
-                                <th className="px-8 py-4 text-right">Action</th>
+                            <tr className="bg-slate-50 border-b border-slate-200">
+                                <th className="text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-6 py-3">Item Info</th>
+                                <th className="text-left text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-6 py-3">Part Number</th>
+                                <th className="text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Batch Number</th>
+                                <th className="text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Expired Date</th>
+                                <th className="text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Location</th>
+                                <th className="text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Stock</th>
+                                <th className="text-right text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-6 py-3">Action</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-white/5">
+                        <tbody className="divide-y divide-slate-100">
                             {filteredInventory.map((item: InventoryItem) => (
-                                <tr key={item.id} className="group transition-colors hover:bg-white/[0.02] hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]">
-                                    <td className="px-8 py-6">
-                                        <p className="text-base font-extrabold text-white/90 group-hover:text-white transition-colors leading-normal break-words">{item.part_name}</p>
-                                        <p className="text-[10px] font-mono text-white/30 mt-1 truncate max-w-[150px]">{item.barcode_id}</p>
+                                <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                                    <td className="px-6 py-4">
+                                        <p className="text-sm font-semibold text-slate-900 leading-normal break-words">{item.part_name}</p>
+                                        <p className="text-[10px] font-mono text-slate-400 mt-1 truncate max-w-[150px]">{item.barcode_id}</p>
                                     </td>
-                                    <td className="px-8 py-6 text-base font-bold text-white/50 leading-normal">{item.part_number || "—"}</td>
-                                    <td className="px-8 py-6 text-center text-sm font-medium text-white/50">{item.batch_number || "—"}</td>
-                                    <td className="px-8 py-6 text-center text-sm font-medium text-white/50">
-                                        {item.expired_date ? new Date(item.expired_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : "—"}
+                                    <td className="px-6 py-4 text-sm text-slate-600 leading-normal">{item.part_number || "—"}</td>
+                                    <td className="px-4 py-4 text-center text-sm text-slate-600">{item.batch_number || "—"}</td>
+                                    <td className="px-4 py-4 text-center text-sm text-slate-600">
+                                        {item.expired_date_fixed ? new Date(item.expired_date_fixed).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }) : "—"}
                                     </td>
-                                    <td className="px-8 py-6 text-center">
-                                        <span className="inline-block px-3 py-1 bg-white/5 text-white/60 rounded-lg text-xs font-bold shadow-[0_0_0_1px_rgba(255,255,255,0.06)]">
+                                    <td className="px-4 py-4 text-center">
+                                        <span className="inline-flex items-center px-2 py-0.5 bg-slate-100 text-slate-700 text-xs font-semibold rounded border border-slate-200">
                                             {item.location || "N/A"}
                                         </span>
                                     </td>
-                                    <td className="px-8 py-6 text-center">
-                                        <span className={`inline-block min-w-[3rem] py-1 px-3 rounded-lg font-black text-sm shadow-[0_0_0_1px_rgba(255,255,255,0.06)] ${Number(item.quantity) <= 5 ? "bg-red-500/10 text-red-400" : "bg-[#00ed64]/10 text-[#00ed64]"
+                                    <td className="px-4 py-4 text-center">
+                                        <span className={`inline-flex items-center justify-center min-w-[40px] px-2 py-0.5 rounded text-sm font-semibold tabular-nums border ${Number(item.quantity) <= 5
+                                            ? "bg-red-50 text-red-700 border-red-100"
+                                            : "bg-slate-50 text-slate-700 border-slate-200"
                                             }`}>{item.quantity}</span>
                                     </td>
-                                    <td className="px-8 py-6">
-                                        <div className="flex justify-end items-center gap-4">
-                                            <button onClick={() => onPrintQR(item)} className="p-2 text-white/20 hover:text-white hover:bg-white/10 rounded-lg transition-all" title="Print QR">🖨️</button>
-                                            <button onClick={() => onEdit(item)} className="p-2 text-white/20 hover:text-amber-400 hover:bg-white/10 rounded-lg transition-all" title="Edit">✏️</button>
-                                            <button onClick={() => onDelete(item.id, item.part_name)} className="p-2 text-white/20 hover:text-red-400 hover:bg-white/10 rounded-lg transition-all" title="Hapus">🗑️</button>
+                                    <td className="px-6 py-4">
+                                        <div className="flex justify-end items-center gap-2">
+                                            <button onClick={() => onPrintQR(item)} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors" title="Print QR">🖨️</button>
+                                            <button onClick={() => onEdit(item)} className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-slate-100 rounded transition-colors" title="Edit">✏️</button>
+                                            <button onClick={() => onDelete(item.id, item.part_name)} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-slate-100 rounded transition-colors" title="Hapus">🗑️</button>
                                         </div>
                                     </td>
                                 </tr>
                             ))}
                             {filteredInventory.length === 0 && (
                                 <tr>
-                                    <td colSpan={7} className="px-8 py-20 text-center">
+                                    <td colSpan={7} className="px-6 py-20 text-center">
                                         <div className="text-4xl mb-4 opacity-20">📦</div>
-                                        <p className="text-white/30 font-bold">No item found.</p>
+                                        <p className="text-slate-400 font-bold">No item found.</p>
                                     </td>
                                 </tr>
                             )}

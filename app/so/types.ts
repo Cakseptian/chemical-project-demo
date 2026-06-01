@@ -15,7 +15,7 @@ export interface InventoryItem {
   location?: string | null;
   quantity: number | string; // Bisa number atau string dari DB
   barcode_id: string;
-  expired_date?: string | null;
+  expired_date_fixed?: string | null;
   batch_number?: string | null;
   is_bulk: boolean;
   uom: string;
@@ -70,7 +70,7 @@ export interface InventoryFormData {
   location: string;
   quantity: string;
   barcode_id: string;
-  expired_date: string;
+  expired_date_fixed: string;
   batch_number: string;
   isBulk: boolean;
   uom: string;

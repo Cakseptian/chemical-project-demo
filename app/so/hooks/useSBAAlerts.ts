@@ -31,9 +31,9 @@ export const useSBAAlerts = (
             log.transaction_type === "RETURN_HABIS" ||
             log.transaction_type === "LOST"
           ) {
-            weeklyCons[weekIndex] += qty;
+            weeklyCons[weekIndex] += Math.abs(log.jumlah);
           } else if (log.transaction_type === "LOAN") {
-            weeklyLoan[weekIndex] += qty;
+            weeklyLoan[weekIndex] += Math.abs(log.jumlah);
           }
         }
       });
@@ -44,16 +44,16 @@ export const useSBAAlerts = (
       const rop = calculateROP(sbaCons.forecast, leadTime, safetyStock);
       const currentStock = Number(item.quantity);
 
-      let status = "🟢 AMAN";
+      let status = "AMAN";
       let color = "text-green-400 bg-green-500/10 border-green-500/20";
       let action = "Stok mencukupi";
 
       if (currentStock <= rop) {
-        status = "🔴 REORDER";
+        status = "REORDER";
         color = "text-red-400 bg-red-500/10 border-red-500/20";
         action = `Beli ke supplier! (ROP: ${rop})`;
       } else if (currentStock <= safetyStock) {
-        status = "🟡 REFILL LOKET";
+        status = "REFILL LOKET";
         color = "text-amber-400 bg-amber-500/10 border-amber-500/20";
         action = "Pindah barang ke Rak 1";
       }
@@ -75,13 +75,34 @@ export const useSBAAlerts = (
       } as SBAAlert;
     });
 
+    // Sort dengan 4 level priority:
+    // 1. REORDER (paling urgent - harus beli sekarang)
+    // 2. REFILL LOKET (urgent - pindah ke rak depan)
+    // 3. AMAN dengan data forecast (punya history transaksi)
+    // 4. AMAN tanpa data (cold start - belum ada history)
     return alerts.sort((a, b) => {
-      const priority = (status: string) => {
-        if (status.includes("REORDER")) return 0;
-        if (status.includes("REFILL")) return 1;
-        return 2;
+      const getPriority = (alert: SBAAlert): number => {
+        if (alert.status.includes("REORDER")) return 0;
+        if (alert.status.includes("REFILL")) return 1;
+
+        // Cek apakah item punya data forecast yang meaningful
+        const hasForecastData =
+          alert.sbaLoan > 0 ||
+          alert.sbaCons > 0 ||
+          alert.positivePeriods > 0;
+
+        if (hasForecastData) return 2;  // AMAN dengan data
+        return 3;                        // AMAN tanpa data (cold start)
       };
-      return priority(a.status) - priority(b.status);
+
+      const priorityDiff = getPriority(a) - getPriority(b);
+
+      // Kalau priority sama, sort alphabetically by part_name
+      if (priorityDiff === 0) {
+        return a.part_name.localeCompare(b.part_name);
+      }
+
+      return priorityDiff;
     });
   }, [inventoryList, historyList]);
 };

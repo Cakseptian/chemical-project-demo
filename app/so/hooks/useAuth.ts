@@ -1,60 +1,91 @@
 "use client";
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import type { User } from "@supabase/supabase-js";
 
-const PIN_RAHASIA = "123456";
+// Email whitelist - hanya email ini yang bisa login sebagai admin
+const ADMIN_EMAILS = [
+  "septianhkc@gmail.com"
+];
 
 export const useAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [pinInput, setPinInput] = useState("");
-  const [showPin, setShowPin] = useState(false);
-  const [isWrongPin, setIsWrongPin] = useState(false);
-  const [isLoginLoading, setIsLoginLoading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Check session on mount
   useEffect(() => {
-    const isLogin = sessionStorage.getItem("gmf_admin_auth");
-    if (isLogin === "true") setIsAuthenticated(true);
+    const checkSession = async () => {
+      setIsLoading(true);
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session?.user) {
+        // Validate email whitelist
+        if (ADMIN_EMAILS.includes(session.user.email || "")) {
+          setUser(session.user);
+        } else {
+          // Email tidak di whitelist, sign out
+          await supabase.auth.signOut();
+          setError("Email tidak memiliki akses admin");
+        }
+      }
+
+      setIsLoading(false);
+    };
+
+    checkSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        if (ADMIN_EMAILS.includes(session.user.email || "")) {
+          setUser(session.user);
+          setError(null);
+        } else {
+          supabase.auth.signOut();
+          setError("Email tidak memiliki akses admin");
+        }
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const handleLoginAdmin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (pinInput.length !== 6) {
-      setIsWrongPin(true);
-      setTimeout(() => setIsWrongPin(false), 500);
-      return;
+  // Login dengan Google OAuth
+  const signInWithGoogle = async () => {
+    try {
+      setError(null);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/so`,
+        },
+      });
+      if (error) throw error;
+    } catch (err: any) {
+      setError(err.message || "Gagal login dengan Google");
     }
-    setIsLoginLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 350));
-    if (pinInput === PIN_RAHASIA) {
-      setIsAuthenticated(true);
-      sessionStorage.setItem("gmf_admin_auth", "true");
-      setIsWrongPin(false);
-    } else {
-      setIsWrongPin(true);
-      setTimeout(() => setIsWrongPin(false), 800);
-      setPinInput("");
-    }
-    setIsLoginLoading(false);
   };
 
-  const handleLogoutAdmin = () => {
-    setIsAuthenticated(false);
-    sessionStorage.removeItem("gmf_admin_auth");
-    setPinInput("");
-    setIsWrongPin(false);
-    setShowPin(false);
-    setIsLoginLoading(false);
+  // Logout
+  const signOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      setUser(null);
+    } catch (err: any) {
+      setError(err.message || "Gagal logout");
+    }
   };
 
   return {
-    isAuthenticated,
-    pinInput,
-    setPinInput,
-    showPin,
-    setShowPin,
-    isWrongPin,
-    setIsWrongPin,
-    isLoginLoading,
-    handleLoginAdmin,
-    handleLogoutAdmin,
+    user,
+    isLoading,
+    error,
+    isAuthenticated: !!user,
+    signInWithGoogle,
+    signOut,
   };
 };

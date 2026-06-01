@@ -50,7 +50,7 @@ const generateQRLabelHtml = (item: InventoryItem): string => {
       <p>PN: ${item.part_number || "-"}</p>
       <img src="${qrUrl}" alt="QR Code" />
       <p>Batch: ${item.batch_number || "-"}</p>
-      <p>Exp: ${item.expired_date || "-"}</p>
+      <p>Exp: ${item.expired_date_fixed || "-"}</p>
       <div class="uuid">${item.barcode_id}</div>
     </div>
   `;
@@ -218,7 +218,7 @@ export const printLocationList = (inventoryList: InventoryItem[]): void => {
         const sortedItems = groupedData[loc].sort((a, b) => a.part_name.localeCompare(b.part_name));
 
         sortedItems.forEach(item => {
-            const expDate = item.expired_date ? new Date(item.expired_date) : null;
+            const expDate = item.expired_date_fixed ? new Date(item.expired_date_fixed) : null;
             const isExpired = expDate && expDate < today;
             const formattedDate = expDate
                 ? expDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })

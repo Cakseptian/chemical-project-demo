@@ -12,15 +12,15 @@ interface NavItemProps {
 export const NavItem = ({ id, icon, label, isActive, onClick }: NavItemProps) => (
     <button
         onClick={onClick}
-        className={`w-full flex items-center gap-4 px-6 py-3 transition-all duration-200 rounded-full group ${isActive
-                ? "bg-white/10 text-white shadow-[0_0_0_1px_rgba(255,255,255,0.06)]"
-                : "text-white/40 hover:bg-white/5 hover:text-white/80"
+        className={`w-full flex items-center gap-2.5 px-3 py-2 transition-all duration-200 rounded-md group text-left ${isActive
+                ? "bg-[#00ed64] text-[#001e2b] font-bold shadow-md"
+                : "text-white/60 hover:bg-white/5 hover:text-white/90"
             }`}
     >
-        <span className={`text-xl transition-transform group-hover:scale-110 flex items-center justify-center w-6 h-6 ${isActive ? "opacity-100" : "opacity-40 group-hover:opacity-80"
+        <span className={`w-4 h-4 transition-transform group-hover:scale-105 flex items-center justify-center flex-shrink-0 ${isActive ? "text-[#001e2b]" : "text-white/40 group-hover:text-white/70"
             }`}>
             {icon}
         </span>
-        <span className="font-bold text-sm tracking-tight">{label}</span>
+        <span className="text-sm font-semibold">{label}</span>
     </button>
 );
