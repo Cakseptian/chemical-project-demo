@@ -5,7 +5,8 @@ import type { User } from "@supabase/supabase-js";
 
 // Email whitelist - hanya email ini yang bisa login sebagai admin
 const ADMIN_EMAILS = [
-  "septianhkc@gmail.com"
+  "septianhkc@gmail.com",
+  "farizalghifary19@gmail.com"
 ];
 
 export const useAuth = () => {
