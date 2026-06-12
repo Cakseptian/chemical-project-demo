@@ -3,11 +3,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import type { User } from "@supabase/supabase-js";
 
-// Email whitelist - hanya email ini yang bisa login sebagai admin
-const ADMIN_EMAILS = [
-  "septianhkc@gmail.com",
-  "farizalghifary19@gmail.com"
-];
+// Email whitelist - hanya email ini yang bisa login sebagai admin.
+// Dibaca dari environment variable NEXT_PUBLIC_ADMIN_EMAILS (comma-separated list).
+const ADMIN_EMAILS = process.env.NEXT_PUBLIC_ADMIN_EMAILS
+  ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(",").map(email => email.trim())
+  : [];
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -65,8 +65,9 @@ export const useAuth = () => {
         },
       });
       if (error) throw error;
-    } catch (err: any) {
-      setError(err.message || "Gagal login dengan Google");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Gagal login dengan Google";
+      setError(message);
     }
   };
 
@@ -76,8 +77,9 @@ export const useAuth = () => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       setUser(null);
-    } catch (err: any) {
-      setError(err.message || "Gagal logout");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Gagal logout";
+      setError(message);
     }
   };
 
