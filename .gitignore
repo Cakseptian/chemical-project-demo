@@ -33,6 +33,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -44,6 +45,8 @@ next-env.d.ts
 # Project documentation (not for commit)
 PROJECT_COMPREHENSIVE_REVIEW.md
 AGENTS.md
+system_architecture.md
+system_architecture.mermaid
 
 # Graphify output directory
 graphify-out/
