@@ -202,7 +202,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to interact 
 
 * **Developed & Engineered by**: Septian Rizqi Arifandi
 * **Original Project Repository**: [github.com/septianshft/Stock-Opname-Project](https://github.com/septianshft/Stock-Opname-Project)
-* **LinkedIn**: [linkedin.com/in/septian-rizqi](https://linkedin.com/in/septian-rizqi)
+* **LinkedIn**: linkedin.com/in/septianrizqi](https://www.linkedin.com/in/septianrizqi)
 * **Email**: [septianrizqi.workmail@gmail.com](mailto:septianrizqi.workmail@gmail.com)
 
 *"Bridging the gap between software engineering, data analysis, and industrial efficiency."*
