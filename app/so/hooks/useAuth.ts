@@ -6,7 +6,7 @@ import type { User } from "@supabase/supabase-js";
 // Email whitelist - hanya email ini yang bisa login sebagai admin.
 // Dibaca dari environment variable NEXT_PUBLIC_ADMIN_EMAILS (comma-separated list).
 const ADMIN_EMAILS = process.env.NEXT_PUBLIC_ADMIN_EMAILS
-  ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(",").map(email => email.trim())
+  ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(",").map(email => email.trim().toLowerCase())
   : [];
 
 export const useAuth = () => {
@@ -22,7 +22,7 @@ export const useAuth = () => {
 
       if (session?.user) {
         // Validate email whitelist
-        if (ADMIN_EMAILS.includes(session.user.email || "")) {
+        if (ADMIN_EMAILS.includes((session.user.email || "").toLowerCase())) {
           setUser(session.user);
         } else {
           // Email tidak di whitelist, sign out
@@ -39,7 +39,7 @@ export const useAuth = () => {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        if (ADMIN_EMAILS.includes(session.user.email || "")) {
+        if (ADMIN_EMAILS.includes((session.user.email || "").toLowerCase())) {
           setUser(session.user);
           setError(null);
         } else {
