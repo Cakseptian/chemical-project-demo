@@ -232,7 +232,7 @@ export const DashboardTab = ({ inventoryList, dashboardStats, sbaAlerts, history
                                     Params
                                 </th>
                                 <th className="text-right text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-6 py-3">
-                                    Exp Status
+                                    Status
                                 </th>
                             </tr>
                         </thead>
