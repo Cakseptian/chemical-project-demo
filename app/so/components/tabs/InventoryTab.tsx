@@ -211,8 +211,8 @@ export const InventoryTab = ({
                     <button
                         onClick={() => handleFilterChange("all")}
                         className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold transition-all duration-200 ${selectedFilter === "all"
-                                ? "bg-slate-800 border-slate-800 text-white shadow-sm scale-[1.02]"
-                                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300"
+                            ? "bg-slate-800 border-slate-800 text-white shadow-sm scale-[1.02]"
+                            : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300"
                             }`}
                     >
                         <span>Semua</span>
@@ -227,8 +227,8 @@ export const InventoryTab = ({
                                 key={opt.status}
                                 onClick={() => handleFilterChange(opt.status)}
                                 className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-semibold transition-all duration-200 ${isSelected
-                                        ? `${opt.color.bg} ${opt.color.text} ${opt.color.border} shadow-sm scale-[1.02] ring-2 ${opt.color.ring}/20`
-                                        : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300"
+                                    ? `${opt.color.bg} ${opt.color.text} ${opt.color.border} shadow-sm scale-[1.02] ring-2 ${opt.color.ring}/20`
+                                    : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300"
                                     }`}
                             >
                                 <span className={`w-1.5 h-1.5 rounded-full ${opt.color.dot}`} />
@@ -361,8 +361,8 @@ export const InventoryTab = ({
                                         key={pageNum}
                                         onClick={() => setCurrentPage(pageNum)}
                                         className={`px-3 py-1.5 border rounded font-semibold transition-all ${activePage === pageNum
-                                                ? "bg-slate-900 border-slate-900 text-white shadow-sm"
-                                                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+                                            ? "bg-slate-900 border-slate-900 text-white shadow-sm"
+                                            : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                                             }`}
                                     >
                                         {pageNum}
