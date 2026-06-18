@@ -340,13 +340,17 @@ export const InventoryTab = ({
                         dari <span className="font-semibold text-slate-900">{filteredByExpiration.length}</span> barang
                     </div>
 
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
                         <button
+                            type="button"
                             disabled={activePage === 1}
                             onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                            className="p-1.5 border border-slate-200 bg-white rounded text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold"
+                            className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors"
+                            title="Halaman Sebelumnya"
                         >
-                            ◀ Previous
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                            </svg>
                         </button>
                         {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pageNum) => {
                             const showPage =
@@ -360,7 +364,7 @@ export const InventoryTab = ({
                                     <button
                                         key={pageNum}
                                         onClick={() => setCurrentPage(pageNum)}
-                                        className={`px-3 py-1.5 border rounded font-semibold transition-all ${activePage === pageNum
+                                        className={`px-3 py-1.5 border rounded-lg font-semibold transition-all ${activePage === pageNum
                                             ? "bg-slate-900 border-slate-900 text-white shadow-sm"
                                             : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
                                             }`}
@@ -381,11 +385,15 @@ export const InventoryTab = ({
                             return null;
                         })}
                         <button
+                            type="button"
                             disabled={activePage === totalPages}
                             onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                            className="p-1.5 border border-slate-200 bg-white rounded text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-semibold"
+                            className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 disabled:opacity-40 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors"
+                            title="Halaman Berikutnya"
                         >
-                            Next ▶
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                            </svg>
                         </button>
                     </div>
                 </div>
