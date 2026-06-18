@@ -2,6 +2,7 @@
 "use client";
 
 import type { InventoryItem } from "../../types";
+import { ExpirationBadge } from "../ExpirationBadge";
 
 interface InventoryTabProps {
     filteredInventory: InventoryItem[];
@@ -88,6 +89,7 @@ export const InventoryTab = ({
                                 <th className="text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Expired Date</th>
                                 <th className="text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Location</th>
                                 <th className="text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Stock</th>
+                                <th className="text-center text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-4 py-3">Expiration</th>
                                 <th className="text-right text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-6 py-3">Action</th>
                             </tr>
                         </thead>
@@ -114,6 +116,12 @@ export const InventoryTab = ({
                                             : "bg-slate-50 text-slate-700 border-slate-200"
                                             }`}>{item.quantity}</span>
                                     </td>
+                                    <td className="px-4 py-3">
+                                        <ExpirationBadge
+                                            expirationDate={item.expired_date_fixed}
+                                            showDate={true}
+                                        />
+                                    </td>
                                     <td className="px-6 py-4">
                                         <div className="flex justify-end items-center gap-2">
                                             <button onClick={() => onPrintQR(item)} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded transition-colors" title="Print QR">🖨️</button>
@@ -125,7 +133,7 @@ export const InventoryTab = ({
                             ))}
                             {filteredInventory.length === 0 && (
                                 <tr>
-                                    <td colSpan={7} className="px-6 py-20 text-center">
+                                    <td colSpan={8} className="px-6 py-20 text-center">
                                         <div className="text-4xl mb-4 opacity-20">📦</div>
                                         <p className="text-slate-400 font-bold">No item found.</p>
                                     </td>
