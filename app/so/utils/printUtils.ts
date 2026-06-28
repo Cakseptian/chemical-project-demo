@@ -28,11 +28,11 @@ const QR_STYLES = `
     body { background: #fff; padding: 0; }
     .no-print { display: none !important; }
     .grid-container { gap: 2mm; }
-    .label-box { border: 1px dashed #999; border-radius: 0; width: 135px; padding: 4px; }
-    h2 { font-size: 10px; }
-    p { font-size: 8px; margin: 0 0 2px; }
-    img { width: 70px; height: 70px; margin: 2px auto; }
-    .uuid { font-size: 6px; margin-top: 2px; }
+    .label-box { border: 1px dashed #999; border-radius: 0; width: 176px; padding: 5px; }
+    h2 { font-size: 13px; }
+    p { font-size: 10px; margin: 0 0 3px; }
+    img { width: 91px; height: 91px; margin: 3px auto; }
+    .uuid { font-size: 7px; margin-top: 3px; }
   }
 `;
 

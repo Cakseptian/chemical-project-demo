@@ -60,7 +60,7 @@ export const ScannerTab = ({
                     <QRScanner onScanSuccess={handleScanSuccess} />
                     <button
                         onClick={() => setIsScanning(false)}
-                        className="mt-6 w-full bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 font-bold py-3 rounded-xl transition-colors"
+                        className="mt-6 w-full bg-slate-100 hover:bg-red-50 text-slate-900 hover:text-red-700 font-bold py-3 rounded-xl transition-colors"
                     >
                         Cancel Scanning
                     </button>

@@ -50,3 +50,10 @@ system_architecture.mermaid
 
 # Graphify output directory
 graphify-out/
+
+
+# Agentic Skills
+.agents
+.claude
+.trae
+

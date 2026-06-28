@@ -27,8 +27,9 @@ export const HeroScanner = ({
                     <QRScanner onScanSuccess={onScanSuccess} />
                 </div>
                 <button
+                    type="button"
                     onClick={() => setIsScanning(false)}
-                    className="mt-6 w-full bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 font-bold py-3 rounded-xl transition-all"
+                    className="mt-6 w-full bg-slate-100 hover:bg-red-50 text-red-900 hover:text-red-600 font-bold py-3 rounded-xl transition-all"
                 >
                     Cancel Scanning
                 </button>
@@ -59,8 +60,9 @@ export const HeroScanner = ({
                         Retry
                     </button>
                     <button
+                        type="button"
                         onClick={() => setErrorMsg(null)}
-                        className="flex-1 bg-slate-100 text-slate-600 font-bold py-3 rounded-xl hover:bg-slate-200 transition-all"
+                        className="flex-1 bg-slate-100 text-red-900 font-bold py-3 rounded-xl hover:bg-slate-200 transition-all"
                     >
                         Dismiss
                     </button>
@@ -71,6 +73,7 @@ export const HeroScanner = ({
 
     return (
         <button
+            type="button"
             onClick={() => setIsScanning(true)}
             className="w-full bg-[#001e2b] hover:bg-[#00293b] active:bg-[#001520] text-white rounded-2xl p-6 sm:p-8 text-left transition-all mb-6 group relative overflow-hidden focus:outline-none"
         >
