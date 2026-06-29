@@ -23,6 +23,7 @@ export interface InventoryItem {
   alpha: number;        // SBA smoothing parameter (0.05-0.50)
   lead_time: number;    // Lead time dalam minggu
   created_at: string;
+  document_url?: string | null;
 }
 
 /**
@@ -75,6 +76,7 @@ export interface InventoryFormData {
   isBulk: boolean;
   uom: string;
   rack_type: string;
+  document_url: string;
 }
 
 /**

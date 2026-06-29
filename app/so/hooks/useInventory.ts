@@ -25,6 +25,7 @@ export const useInventory = () => {
     isBulk: false,
     uom: "Pieces",
     rack_type: "NEW",
+    document_url: "",
   });
 
   const fetchInventory = async () => {
@@ -73,6 +74,7 @@ export const useInventory = () => {
       isBulk: false,
       uom: "Pieces",
       rack_type: "NEW",
+      document_url: "",
     });
     setShowAddModal(true);
   };
@@ -92,6 +94,7 @@ export const useInventory = () => {
       isBulk: item.is_bulk || false,
       uom: item.uom || "Pieces",
       rack_type: item.rack_type || "NEW",
+      document_url: item.document_url || "",
     });
     setShowAddModal(true);
   };
@@ -115,6 +118,7 @@ export const useInventory = () => {
           is_bulk: isBulk,
           uom: uom,
           rack_type: formData.rack_type,
+          document_url: formData.document_url || null,
         }).eq("id", editId);
         if (error) throw error;
         alert("✅ Data barang berhasil diubah!");
@@ -130,6 +134,7 @@ export const useInventory = () => {
           is_bulk: isBulk,
           uom: uom,
           rack_type: formData.rack_type,
+          document_url: formData.document_url || null,
         }]);
         if (error) throw error;
         alert("✅ Barang baru berhasil ditambahkan!");

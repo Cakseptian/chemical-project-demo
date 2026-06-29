@@ -57,3 +57,10 @@ graphify-out/
 .claude
 .trae
 
+# AI injection scripts
+inject-claudecode.py
+inject-openagentic.py
+
+# AI design instruction files
+DESIGN.md
+

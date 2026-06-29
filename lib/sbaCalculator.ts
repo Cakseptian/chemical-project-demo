@@ -8,13 +8,14 @@
  */
 
 export interface SBAResult {
-  forecast: number;        // SBA forecast (dengan bias correction)
-  croston: number;         // Croston forecast (tanpa bias correction)
-  z: number;               // Smoothed demand size (ẑ)
-  p: number;               // Smoothed interval (p̂)
-  alpha: number;           // Smoothing parameter yang dipakai
-  dataPoints: number;      // Jumlah periode data
-  positivePeriods: number; // Jumlah periode dengan demand > 0
+  forecast: number;                        // SBA forecast (dengan bias correction)
+  croston: number;                         // Croston forecast (tanpa bias correction)
+  z: number;                               // Smoothed demand size (ẑ)
+  p: number;                               // Smoothed interval (p̂)
+  alpha: number;                           // Smoothing parameter yang dipakai
+  dataPoints: number;                      // Jumlah periode data
+  positivePeriods: number;                 // Jumlah periode dengan demand > 0
+  trailingZeroCorrectionApplied: boolean;  // indicates if non-standard correction was applied
 }
 
 /**
@@ -22,11 +23,23 @@ export interface SBAResult {
  */
 export const calculateSBA = (
   weeklyDemands: number[],
-  alpha: number = 0.30
+  alpha: number = 0.15,
+  applyTrailingZeroCorrection: boolean = true  // non-standard extension, not in Syntetos & Boylan (2005)
 ): SBAResult => {
   // Edge cases
   if (!weeklyDemands || weeklyDemands.length === 0) {
-    return { forecast: 0, croston: 0, z: 0, p: 1, alpha, dataPoints: 0, positivePeriods: 0 };
+    return { forecast: 0, croston: 0, z: 0, p: 1, alpha, dataPoints: 0, positivePeriods: 0, trailingZeroCorrectionApplied: false };
+  }
+
+  // Validate alpha
+  if (alpha <= 0 || alpha >= 1) {
+    throw new RangeError(`[SBA] alpha must be between 0 and 1 (exclusive). Received: ${alpha}`);
+  }
+  if (alpha < 0.05 || alpha > 0.30) {
+    console.warn(
+      `[SBA] alpha=${alpha} is outside the practical range [0.05, 0.30]. ` +
+      `Syntetos & Boylan (2005) recommend 0.05–0.20 for intermittent demand.`
+    );
   }
 
   let z = 0;                          // Smoothed demand size (ẑ)
@@ -55,17 +68,19 @@ export const calculateSBA = (
     }
   }
 
-  // Koreksi trailing zeros: kalau ada periode kosong setelah demand terakhir,
-  // update p̂ sekali lagi pakai periodsSinceLastDemand sebagai interval observasi
-  // terbaru — konsisten dengan cara p diupdate di dalam loop saat ada demand positif.
-  if (initialized && periodsSinceLastDemand > 0) {
+  // Trailing zeros correction: not described in the paper (paper rule: estimates unchanged when
+  // no demand occurs). Enabled by default for MRO/aerospace context where a long tail of zeros
+  // after the last issue is a meaningful signal. Set applyTrailingZeroCorrection = false for
+  // strict paper-compliant behaviour.
+  if (applyTrailingZeroCorrection && initialized && periodsSinceLastDemand > 0) {
     p = alpha * periodsSinceLastDemand + (1 - alpha) * p;
   }
 
   if (!initialized) {
     return {
       forecast: 0, croston: 0, z: 0, p: 0,
-      alpha, dataPoints: weeklyDemands.length, positivePeriods: 0
+      alpha, dataPoints: weeklyDemands.length, positivePeriods: 0,
+      trailingZeroCorrectionApplied: false
     };
   }
 
@@ -82,7 +97,8 @@ export const calculateSBA = (
     p: Number(p.toFixed(3)),
     alpha,
     dataPoints: weeklyDemands.length,
-    positivePeriods
+    positivePeriods,
+    trailingZeroCorrectionApplied: applyTrailingZeroCorrection
   };
 };
 
