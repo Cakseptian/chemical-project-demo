@@ -13,6 +13,7 @@ export const FloatingCartBar = ({ cartLength, onOpen }: FloatingCartBarProps) =>
             <div className="absolute inset-x-0 -top-8 h-8 bg-gradient-to-t from-slate-50 to-transparent pointer-events-none"></div>
             <div className="max-w-3xl mx-auto px-4 sm:px-6 pb-4">
                 <button
+                    type="button"
                     onClick={onOpen}
                     className="w-full bg-[#00ed64] hover:bg-[#00b545] active:bg-[#00b545] text-[#001e2b] rounded-xl p-4 flex items-center justify-between shadow-lg shadow-[#00ed64]/20 transition-all group focus:outline-none"
                 >

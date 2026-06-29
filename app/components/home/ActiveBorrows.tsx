@@ -51,6 +51,7 @@ export const ActiveBorrows = ({ activeLoans, nomorPegawai, onManageAll, onQuickR
                                     </div>
                                 </div>
                                 <button
+                                    type="button"
                                     onClick={() => onQuickReturn(loan)}
                                     className="px-3 py-1.5 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-100 hover:bg-blue-100 active:bg-blue-200 rounded-lg transition-all"
                                 >

@@ -5,18 +5,17 @@
  * Reference: Syntetos, A.A. & Boylan, J.E. (2005). 
  * "The accuracy of intermittent demand estimates". 
  * International Journal of Forecasting, 21(2), 303-314.
- * 
- * Align dengan: SBA_Forecast_Chemical_MRO_v2.xlsx
  */
 
 export interface SBAResult {
-  forecast: number;        // SBA forecast (dengan bias correction)
-  croston: number;         // Croston forecast (tanpa bias correction)
-  z: number;               // Smoothed demand size (ẑ)
-  p: number;               // Smoothed interval (p̂)
-  alpha: number;           // Smoothing parameter yang dipakai
-  dataPoints: number;      // Jumlah periode data
-  positivePeriods: number; // Jumlah periode dengan demand > 0
+  forecast: number;                        // SBA forecast (dengan bias correction)
+  croston: number;                         // Croston forecast (tanpa bias correction)
+  z: number;                               // Smoothed demand size (ẑ)
+  p: number;                               // Smoothed interval (p̂)
+  alpha: number;                           // Smoothing parameter yang dipakai
+  dataPoints: number;                      // Jumlah periode data
+  positivePeriods: number;                 // Jumlah periode dengan demand > 0
+  trailingZeroCorrectionApplied: boolean;  // indicates if non-standard correction was applied
 }
 
 /**
@@ -24,20 +23,31 @@ export interface SBAResult {
  */
 export const calculateSBA = (
   weeklyDemands: number[],
-  alpha: number = 0.30
+  alpha: number = 0.15,
+  applyTrailingZeroCorrection: boolean = true  // non-standard extension, not in Syntetos & Boylan (2005)
 ): SBAResult => {
   // Edge cases
   if (!weeklyDemands || weeklyDemands.length === 0) {
-    return { forecast: 0, croston: 0, z: 0, p: 1, alpha, dataPoints: 0, positivePeriods: 0 };
+    return { forecast: 0, croston: 0, z: 0, p: 1, alpha, dataPoints: 0, positivePeriods: 0, trailingZeroCorrectionApplied: false };
+  }
+
+  // Validate alpha
+  if (alpha <= 0 || alpha >= 1) {
+    throw new RangeError(`[SBA] alpha must be between 0 and 1 (exclusive). Received: ${alpha}`);
+  }
+  if (alpha < 0.05 || alpha > 0.30) {
+    console.warn(
+      `[SBA] alpha=${alpha} is outside the practical range [0.05, 0.30]. ` +
+      `Syntetos & Boylan (2005) recommend 0.05–0.20 for intermittent demand.`
+    );
   }
 
   let z = 0;                          // Smoothed demand size (ẑ)
   let p = 0;                          // Smoothed interval (p̂)
   let periodsSinceLastDemand = 0;     // Counter untuk interval
   let positivePeriods = 0;
-  let initialized = false;            // 🆕 Flag untuk track apakah sudah ketemu demand pertama
+  let initialized = false;
 
-  // 🔧 FIX: Loop dari index 0, bukan dari firstPositiveIdx
   for (let i = 0; i < weeklyDemands.length; i++) {
     const demand = weeklyDemands[i];
     periodsSinceLastDemand++;
@@ -46,35 +56,36 @@ export const calculateSBA = (
       positivePeriods++;
 
       if (!initialized) {
-        // 🆕 Initial values: pakai interval aktual dari awal data
-        // Ini yang bikin Excel return p=15 untuk cons (15 minggu tanpa demand)
         z = demand;
         p = periodsSinceLastDemand;
         initialized = true;
       } else {
-        // Exponential smoothing (setelah demand pertama)
         z = alpha * demand + (1 - alpha) * z;
         p = alpha * periodsSinceLastDemand + (1 - alpha) * p;
       }
 
-      // Reset counter
       periodsSinceLastDemand = 0;
     }
-    // Kalau demand = 0, z dan p TIDAK diupdate (sesuai paper SBA)
   }
 
-  // Kalau belum ada demand positif sama sekali
+  // Trailing zeros correction: not described in the paper (paper rule: estimates unchanged when
+  // no demand occurs). Enabled by default for MRO/aerospace context where a long tail of zeros
+  // after the last issue is a meaningful signal. Set applyTrailingZeroCorrection = false for
+  // strict paper-compliant behaviour.
+  if (applyTrailingZeroCorrection && initialized && periodsSinceLastDemand > 0) {
+    p = alpha * periodsSinceLastDemand + (1 - alpha) * p;
+  }
+
   if (!initialized) {
     return {
       forecast: 0, croston: 0, z: 0, p: 0,
-      alpha, dataPoints: weeklyDemands.length, positivePeriods: 0
+      alpha, dataPoints: weeklyDemands.length, positivePeriods: 0,
+      trailingZeroCorrectionApplied: false
     };
   }
 
-  // Prevent division by zero
   if (p === 0) p = 1;
 
-  // SBA formula dengan bias correction
   const biasCorrection = 1 - (alpha / 2);
   const croston = z / p;
   const forecast = biasCorrection * croston;
@@ -86,13 +97,11 @@ export const calculateSBA = (
     p: Number(p.toFixed(3)),
     alpha,
     dataPoints: weeklyDemands.length,
-    positivePeriods
+    positivePeriods,
+    trailingZeroCorrectionApplied: applyTrailingZeroCorrection
   };
 };
 
-/**
- * Hitung Safety Stock (align dengan Excel: ROUNDUP(Forecast_Loan × 1.5, 0))
- */
 export const calculateSafetyStock = (
   forecastLoan: number,
   multiplier: number = 1.5
@@ -100,10 +109,6 @@ export const calculateSafetyStock = (
   return Math.ceil(forecastLoan * multiplier);
 };
 
-/**
- * Hitung Reorder Point
- * ROP = (Forecast_Cons × LeadTime) + SafetyStock
- */
 export const calculateROP = (
   forecastCons: number,
   leadTime: number,

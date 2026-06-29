@@ -44,7 +44,7 @@ export const CartDrawer = ({
                                 <div className="min-w-0 flex-1">
                                     <h3 className="font-bold text-slate-800 text-sm truncate leading-snug">{item.part_name}</h3>
                                     <p className="text-[10px] text-slate-400 font-mono mt-1">
-                                        Sistem: <span className="font-bold text-slate-600">{item.max_quantity} {item.uom}</span>
+                                        Sistem: <span className="font-bold text-slate-900">{item.max_quantity} {item.uom}</span>
                                         {item.location ? ` · Rak: ${item.location}` : ""}
                                     </p>
                                 </div>

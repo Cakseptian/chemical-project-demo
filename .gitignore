@@ -50,3 +50,17 @@ system_architecture.mermaid
 
 # Graphify output directory
 graphify-out/
+
+
+# Agentic Skills
+.agents
+.claude
+.trae
+
+# AI injection scripts
+inject-claudecode.py
+inject-openagentic.py
+
+# AI design instruction files
+DESIGN.md
+
