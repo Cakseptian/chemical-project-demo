@@ -29,7 +29,7 @@ export const HeroScanner = ({
                 <button
                     type="button"
                     onClick={() => setIsScanning(false)}
-                    className="mt-6 w-full bg-slate-100 hover:bg-red-50 text-red-900 hover:text-red-600 font-bold py-3 rounded-xl transition-all"
+                    className="mt-6 w-full bg-slate-100 hover:bg-red-50 text-red-900 hover:text-red-600 font-bold py-3 rounded-full transition-all"
                 >
                     Cancel Scanning
                 </button>
@@ -55,14 +55,14 @@ export const HeroScanner = ({
                 <div className="flex gap-3">
                     <button
                         onClick={() => { setErrorMsg(null); setIsScanning(true); }}
-                        className="flex-1 bg-[#00ed64] hover:bg-[#00b545] text-[#001e2b] font-black py-3 rounded-xl transition-all shadow-sm"
+                        className="flex-1 bg-[#00ed64] hover:bg-[#00b545] text-[#001e2b] font-black py-3 rounded-full transition-all shadow-sm"
                     >
                         Retry
                     </button>
                     <button
                         type="button"
                         onClick={() => setErrorMsg(null)}
-                        className="flex-1 bg-slate-100 text-red-900 font-bold py-3 rounded-xl hover:bg-slate-200 transition-all"
+                        className="flex-1 bg-slate-100 text-red-900 font-bold py-3 rounded-full hover:bg-slate-200 transition-all"
                     >
                         Dismiss
                     </button>
