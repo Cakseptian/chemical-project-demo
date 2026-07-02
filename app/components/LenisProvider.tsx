@@ -1,7 +1,25 @@
 "use client";
 
-import { ReactLenis } from "lenis/react";
+import { ReactLenis, useLenis } from "lenis/react";
+import { createContext, useContext } from "react";
+import type Lenis from "lenis";
 import type { ReactNode } from "react";
+
+// Context to share the Lenis instance with any component in the tree
+const LenisContext = createContext<Lenis | null>(null);
+
+export function useLenisInstance() {
+    return useContext(LenisContext);
+}
+
+function LenisInner({ children }: { children: ReactNode }) {
+    const lenis = useLenis();
+    return (
+        <LenisContext.Provider value={lenis ?? null}>
+            {children}
+        </LenisContext.Provider>
+    );
+}
 
 interface LenisProviderProps {
     children: ReactNode;
@@ -15,8 +33,6 @@ export function LenisProvider({ children }: LenisProviderProps) {
                 lerp: 0.1,
                 duration: 1.2,
                 smoothWheel: true,
-                // Disable on touch devices — native momentum scroll is already smooth
-                // and Lenis on mobile can conflict with fixed overlays/modals
                 prevent: (node: Element) => {
                     return (
                         node.id === "lenis-prevent" ||
@@ -25,7 +41,9 @@ export function LenisProvider({ children }: LenisProviderProps) {
                 },
             }}
         >
-            {children}
+            <LenisInner>
+                {children}
+            </LenisInner>
         </ReactLenis>
     );
 }

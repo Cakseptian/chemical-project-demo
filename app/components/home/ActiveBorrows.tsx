@@ -1,4 +1,5 @@
 "use client";
+import { Package, ArrowUUpLeft } from "@phosphor-icons/react";
 import { getRelativeTime } from "@/app/utils/timeUtils";
 import type { ActiveLoan } from "@/app/types";
 
@@ -8,18 +9,6 @@ interface ActiveBorrowsProps {
     onManageAll: () => void;
     onQuickReturn: (loan: ActiveLoan) => void;
 }
-
-const IconPackage = () => (
-    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
-    </svg>
-);
-
-const IconReturn = () => (
-    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
-    </svg>
-);
 
 export const ActiveBorrows = ({ activeLoans, nomorPegawai, onManageAll, onQuickReturn }: ActiveBorrowsProps) => {
     return (
@@ -56,26 +45,23 @@ export const ActiveBorrows = ({ activeLoans, nomorPegawai, onManageAll, onQuickR
                                 {/* Item info */}
                                 <div className="min-w-0 flex-1">
                                     <p className="text-sm font-semibold text-slate-900 truncate leading-normal">{loan.part_name}</p>
-                                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                                    <div className="flex items-center gap-2 mt-0.5">
                                         <span className="text-xs text-slate-700 font-semibold tabular-nums">{Math.abs(loan.jumlah)} unit</span>
                                         <span className="text-slate-300 text-xs">·</span>
                                         <span className="text-xs text-slate-400">{getRelativeTime(loan.created_at)}</span>
-                                        {loan.part_number && (
-                                            <>
-                                                <span className="text-slate-300 text-xs">·</span>
-                                                <span className="text-xs text-slate-400 font-mono">{loan.part_number}</span>
-                                            </>
-                                        )}
                                     </div>
+                                    {loan.part_number && (
+                                        <span className="text-xs text-slate-400 font-mono mt-0.5 block">{loan.part_number}</span>
+                                    )}
                                 </div>
 
-                                {/* Return button — prominent */}
+                                {/* Return button */}
                                 <button
                                     type="button"
                                     onClick={() => onQuickReturn(loan)}
                                     className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#00684a] bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 active:scale-95 rounded-lg transition-all shrink-0"
                                 >
-                                    <IconReturn />
+                                    <ArrowUUpLeft weight="bold" className="w-3.5 h-3.5" />
                                     Return
                                 </button>
                             </div>
@@ -83,7 +69,7 @@ export const ActiveBorrows = ({ activeLoans, nomorPegawai, onManageAll, onQuickR
                     ))
                 ) : (
                     <div className="px-5 py-10 flex flex-col items-center justify-center gap-2 text-slate-400">
-                        <IconPackage />
+                        <Package weight="thin" className="w-8 h-8" />
                         <p className="text-sm font-semibold text-slate-500 mt-1">Tidak ada pinjaman aktif</p>
                         <p className="text-xs text-slate-400 text-center max-w-[220px]">
                             {nomorPegawai.trim()

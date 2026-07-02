@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import type { InventoryItemPublic } from "@/app/types";
 
 // SVG Icons — consistent with InventoryTab style
@@ -44,6 +45,15 @@ export const SearchModal = ({
     isSearchingDb,
     filteredItems,
 }: SearchModalProps) => {
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+        return () => { document.body.style.overflow = ""; };
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     return (
@@ -83,7 +93,7 @@ export const SearchModal = ({
                 </div>
 
                 {/* ── RESULTS LIST ────────────────────────────────────── */}
-                <div className="overflow-y-auto flex-1">
+                <div className="overflow-y-auto flex-1" data-lenis-prevent>
                     {isSearchingDb ? (
                         <div className="py-24 flex flex-col items-center justify-center gap-3">
                             <div className="w-8 h-8 border-2 border-slate-200 border-t-slate-700 rounded-full animate-spin" />
@@ -134,8 +144,8 @@ export const SearchModal = ({
                                         {/* Stok badge */}
                                         <td className="px-6 py-3.5 text-center">
                                             <span className={`inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold ${Number(item.quantity) > 0
-                                                    ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
-                                                    : "bg-red-50 text-red-600 border border-red-100"
+                                                ? "bg-emerald-50 text-emerald-700 border border-emerald-100"
+                                                : "bg-red-50 text-red-600 border border-red-100"
                                                 }`}>
                                                 {Number(item.quantity) > 0 ? `${item.quantity} Tersedia` : "Kosong"}
                                             </span>

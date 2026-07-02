@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import type { CartItem } from "@/app/types";
 
 interface CartDrawerProps {
@@ -41,6 +42,15 @@ export const CartDrawer = ({
     onUpdateQuantity, onUpdateBulkQty, onRemoveFromCart,
     onReset, onCheckout, onAddMore,
 }: CartDrawerProps) => {
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+        return () => { document.body.style.overflow = ""; };
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     const isProfileComplete = nomorPegawai.trim().length > 0 && namaPeminjam.trim().length > 0;
@@ -95,7 +105,7 @@ export const CartDrawer = ({
                 </div>
 
                 {/* Cart items */}
-                <div className="p-5 overflow-y-auto flex-1 bg-slate-50/50 space-y-3">
+                <div className="p-5 overflow-y-auto flex-1 bg-slate-50/50 space-y-3" data-lenis-prevent>
                     {cart.map((item) => (
                         <div key={item.id} className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between gap-4">
                             <div className="min-w-0 flex-1">
