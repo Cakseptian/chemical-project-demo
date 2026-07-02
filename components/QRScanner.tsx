@@ -41,20 +41,67 @@ const IconAlert = () => (
   </svg>
 );
 
+/**
+ * Pick the best rear camera deviceId for the current device.
+ *
+ * Strategy (in priority order):
+ *   1. Label contains "wide" (explicit wide-angle label)
+ *   2. Label matches "camera2 0" or ends with " 0, facing back" (Android camera2 API index 0 = wide)
+ *   3. Label contains "back 0" or "rear 0"
+ *   4. First camera whose label contains "back" or "rear" (lowest index wins)
+ *   5. First videoinput device (single-camera fallback)
+ *
+ * On Huawei multi-camera setups, the wide lens is always camera index 0.
+ * facingMode: "environment" incorrectly picks a higher-index telephoto lens.
+ */
+async function pickWideCameraId(): Promise<string | null> {
+  try {
+    // We need a live stream first to unlock device labels in the browser
+    const permStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+    permStream.getTracks().forEach((t) => t.stop());
+
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const videoInputs = devices.filter((d) => d.kind === "videoinput");
+
+    if (videoInputs.length === 0) return null;
+    if (videoInputs.length === 1) return videoInputs[0].deviceId;
+
+    const label = (d: MediaDeviceInfo) => d.label.toLowerCase();
+
+    // Priority 1: explicit "wide" in label
+    const wide = videoInputs.find((d) => label(d).includes("wide"));
+    if (wide) return wide.deviceId;
+
+    // Priority 2: Android camera2 index 0 — "camera2 0, facing back"
+    const cam2zero = videoInputs.find((d) => /camera2 0.*back/i.test(d.label) || /back.*camera2 0/i.test(d.label));
+    if (cam2zero) return cam2zero.deviceId;
+
+    // Priority 3: "back 0" or "rear 0"
+    const backZero = videoInputs.find((d) => /back\s*0|rear\s*0/i.test(d.label));
+    if (backZero) return backZero.deviceId;
+
+    // Priority 4: first device whose label mentions "back" or "rear" (lowest array index = widest)
+    const firstBack = videoInputs.find((d) => /back|rear|environment/i.test(d.label));
+    if (firstBack) return firstBack.deviceId;
+
+    // Priority 5: last resort — first device in the list
+    return videoInputs[0].deviceId;
+  } catch {
+    return null; // Permission denied or enumeration failed — fall back to facingMode
+  }
+}
+
 export default function QRScanner({ onScanSuccess }: QRScannerProps) {
   const [isStarted, setIsStarted] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [hasZoomSupport, setHasZoomSupport] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const scanLoopRef = useRef<number | null>(null);
   const detectorRef = useRef<InstanceType<NonNullable<Window["BarcodeDetector"]>> | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const html5QrRef = useRef<Html5Qrcode | null>(null);
-  // Hidden div required by Html5Qrcode for file scanning fallback
   const fallbackId = "qr-fallback-reader";
 
-  // Initialize BarcodeDetector if available
   useEffect(() => {
     if (typeof window !== "undefined" && window.BarcodeDetector) {
       try {
@@ -63,11 +110,8 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
         detectorRef.current = null;
       }
     }
-    // Auto-start on mount
     startScanner();
-    return () => {
-      stopScanner();
-    };
+    return () => { stopScanner(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -86,10 +130,10 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
           const value = barcodes[0].rawValue;
           stopScanner();
           onScanSuccess(value);
-          return; // Stop loop after successful scan
+          return;
         }
       } catch {
-        // Detection errors are expected on frames where no code is visible — ignore
+        // Detection frames with no QR code — expected, ignore
       }
       scanLoopRef.current = requestAnimationFrame(tick);
     };
@@ -101,42 +145,40 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
     if (isStarted) return;
     setError(null);
 
-    // Check if BarcodeDetector is available — if not, show a message
     if (typeof window !== "undefined" && !window.BarcodeDetector) {
       setError("Kamera langsung tidak tersedia di browser ini. Gunakan fitur upload gambar QR di bawah.");
       return;
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
+      // Try to enumerate cameras and pick the wide-angle lens by deviceId.
+      // This is the reliable fix for Huawei multi-camera devices where
+      // facingMode:"environment" incorrectly selects a telephoto lens.
+      const wideCameraId = await pickWideCameraId();
+
+      const videoConstraints: MediaTrackConstraints = wideCameraId
+        ? {
+          deviceId: { exact: wideCameraId },
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+        }
+        : {
+          // Fallback for single-camera devices or enumeration failure
           facingMode: { ideal: "environment" },
           width: { ideal: 1920 },
           height: { ideal: 1080 },
-        },
+        };
+
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: videoConstraints,
         audio: false,
       });
 
       streamRef.current = stream;
 
-      // Force minimum zoom on the active video track — fixes Huawei and other devices
-      // that default to a telephoto lens for facingMode: "environment"
-      const track = stream.getVideoTracks()[0];
-      if (track) {
-        const capabilities = track.getCapabilities() as MediaTrackCapabilities & { zoom?: { min: number; max: number; step: number } };
-        if (capabilities.zoom) {
-          setHasZoomSupport(true);
-          try {
-            await track.applyConstraints({ advanced: [{ zoom: capabilities.zoom.min } as MediaTrackConstraintSet] });
-          } catch {
-            // applyConstraints for zoom not supported on this device — ignore
-          }
-        }
-      }
-
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.setAttribute("playsinline", "true"); // Required for iOS
+        videoRef.current.setAttribute("playsinline", "true");
         await videoRef.current.play();
         setIsStarted(true);
         startScanLoop(videoRef.current);
@@ -153,17 +195,14 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
   };
 
   const stopScanner = () => {
-    // Cancel animation frame loop
     if (scanLoopRef.current !== null) {
       cancelAnimationFrame(scanLoopRef.current);
       scanLoopRef.current = null;
     }
-    // Stop all video tracks
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     }
-    // Clear video source
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
@@ -173,25 +212,18 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    // Stop live camera if running
     stopScanner();
-
     try {
       setError(null);
-
-      // Lazily initialize html5-qrcode for file scanning only
       if (!html5QrRef.current) {
         html5QrRef.current = new Html5Qrcode(fallbackId);
       }
-
       const decodedText = await html5QrRef.current.scanFile(file, true);
       onScanSuccess(decodedText);
     } catch (err) {
       console.error("File scan error:", err);
       setError("Gagal membaca QR Code dari gambar. Pastikan gambar jelas dan tidak buram.");
     } finally {
-      // Reset file input so the same file can be re-selected
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
@@ -202,7 +234,7 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
       {/* Hidden div for html5-qrcode file scanning fallback */}
       <div id={fallbackId} className="hidden" />
 
-      {/* Viewfinder — native <video> we fully control */}
+      {/* Viewfinder */}
       <div className="relative bg-black w-full overflow-hidden" style={{ minHeight: "260px" }}>
         <video
           ref={videoRef}
@@ -215,19 +247,15 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
         {/* Scan target overlay */}
         {isStarted && (
           <>
-            {/* Corner brackets */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="relative w-52 h-52">
                 <span className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-[#00ed64] rounded-tl-sm" />
                 <span className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-[#00ed64] rounded-tr-sm" />
                 <span className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-[#00ed64] rounded-bl-sm" />
                 <span className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-[#00ed64] rounded-br-sm" />
-                {/* Scan line animation */}
                 <span className="absolute left-1 right-1 h-px bg-[#00ed64]/70 animate-[scan_2s_ease-in-out_infinite]" style={{ top: "50%" }} />
               </div>
             </div>
-
-            {/* Scanning badge */}
             <div className="absolute top-3 right-3 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm px-2.5 py-1 rounded-full">
               <span className="w-1.5 h-1.5 bg-[#00ed64] rounded-full animate-pulse" />
               <span className="text-[11px] font-semibold text-white">Scanning</span>
@@ -250,7 +278,6 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
       {/* Controls */}
       <div className="p-4 flex flex-col gap-3">
 
-        {/* Error */}
         {error && (
           <div className="flex items-start gap-2 px-3 py-2.5 text-xs text-red-700 bg-red-50 border border-red-200 rounded-lg">
             <IconAlert />
@@ -258,58 +285,30 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
           </div>
         )}
 
-        {/* Camera toggle + Reset Zoom row */}
-        <div className={`flex gap-2 ${isStarted && hasZoomSupport ? "" : ""}`}>
-          {!isStarted ? (
-            <button
-              onClick={startScanner}
-              className="flex-1 inline-flex items-center justify-center gap-2 bg-[#001e2b] hover:bg-[#00293b] text-white font-semibold py-2.5 px-4 rounded-lg transition-all active:scale-95 text-sm"
-            >
-              <IconCamera />
-              Mulai Scan
-            </button>
-          ) : (
-            <button
-              onClick={stopScanner}
-              className="flex-1 inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-lg transition-all active:scale-95 text-sm border border-slate-200"
-            >
-              <IconStop />
-              Stop Kamera
-            </button>
-          )}
+        {!isStarted ? (
+          <button
+            onClick={startScanner}
+            className="w-full inline-flex items-center justify-center gap-2 bg-[#001e2b] hover:bg-[#00293b] text-white font-semibold py-2.5 px-4 rounded-lg transition-all active:scale-95 text-sm"
+          >
+            <IconCamera />
+            Mulai Scan
+          </button>
+        ) : (
+          <button
+            onClick={stopScanner}
+            className="w-full inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-lg transition-all active:scale-95 text-sm border border-slate-200"
+          >
+            <IconStop />
+            Stop Kamera
+          </button>
+        )}
 
-          {/* Reset Zoom — only shown when camera is active and zoom API is supported */}
-          {isStarted && hasZoomSupport && (
-            <button
-              onClick={async () => {
-                const track = streamRef.current?.getVideoTracks()[0];
-                if (!track) return;
-                const capabilities = track.getCapabilities() as MediaTrackCapabilities & { zoom?: { min: number } };
-                if (capabilities.zoom) {
-                  try {
-                    await track.applyConstraints({ advanced: [{ zoom: capabilities.zoom.min } as MediaTrackConstraintSet] });
-                  } catch { /* ignore */ }
-                }
-              }}
-              title="Reset zoom ke 1x (untuk Huawei / zoom kamera)"
-              className="inline-flex items-center justify-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 font-semibold py-2.5 px-3 rounded-lg transition-all active:scale-95 text-xs border border-amber-200 shrink-0"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM13.5 10.5h-6" />
-              </svg>
-              1x
-            </button>
-          )}
-        </div>
-
-        {/* Divider */}
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-slate-200" />
           <span className="text-[11px] text-slate-400 font-medium">atau upload gambar</span>
           <div className="flex-1 h-px bg-slate-200" />
         </div>
 
-        {/* File upload */}
         <input
           type="file"
           accept="image/*"
