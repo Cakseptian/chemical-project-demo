@@ -1,4 +1,5 @@
 "use client";
+import { ArrowClockwise, ArrowUUpLeft, ArrowUpRight } from "@phosphor-icons/react";
 import { getRelativeTime } from "@/app/utils/timeUtils";
 import type { TeamActivity } from "@/app/types";
 
@@ -13,15 +14,15 @@ export const TeamFeed = ({ teamActivities, isLoadingTeam, onRefresh }: TeamFeedP
         <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm animate-in fade-in duration-300">
             <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                 <div>
-                    <h3 className="text-sm font-bold text-slate-900 uppercase">Recent from your team</h3>
+                    <h3 className="text-sm font-bold text-slate-900">Recent from your team</h3>
                     <p className="text-xs text-slate-500 mt-0.5">Aktivitas penyesuaian terbaru di hangar</p>
                 </div>
                 <button
                     onClick={onRefresh}
-                    className="p-1 hover:bg-slate-100 rounded-md transition-colors text-slate-400 hover:text-slate-600"
+                    className="p-1.5 hover:bg-slate-100 rounded-md transition-colors text-slate-400 hover:text-slate-600"
                     title="Muat Ulang"
                 >
-                    🔄
+                    <ArrowClockwise weight="bold" className="w-4 h-4" />
                 </button>
             </div>
 
@@ -41,13 +42,9 @@ export const TeamFeed = ({ teamActivities, isLoadingTeam, onRefresh }: TeamFeedP
                                         "bg-emerald-50 border-emerald-100 text-emerald-600"
                                     }`}>
                                     {isReturn ? (
-                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 0 1 0 12h-3" />
-                                        </svg>
+                                        <ArrowUUpLeft weight="bold" className="w-3.5 h-3.5" />
                                     ) : (
-                                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
-                                        </svg>
+                                        <ArrowUpRight weight="bold" className="w-3.5 h-3.5" />
                                     )}
                                 </div>
                                 <div className="min-w-0 flex-1">

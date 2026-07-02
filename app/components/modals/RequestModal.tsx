@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import type { RequestFormData, RequestErrors } from "@/app/types";
 
 // SVG Icons — consistent with InventoryTab style
@@ -30,6 +31,15 @@ export const RequestModal = ({
     isOpen, onClose, reqData, setReqData, errors, setErrors,
     isSubmittingReq, namaInputRef, onSubmit,
 }: RequestModalProps) => {
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+        return () => { document.body.style.overflow = ""; };
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     const inputBase = "w-full bg-white border rounded-lg px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 transition-all outline-none focus:ring-2 focus:border-slate-400";
@@ -62,7 +72,7 @@ export const RequestModal = ({
 
                 <form onSubmit={onSubmit} className="flex flex-col flex-1 overflow-hidden">
                     {/* ── FORM BODY ────────────────────────────────────── */}
-                    <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+                    <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4" data-lenis-prevent>
 
                         {/* Nama Pemohon */}
                         <div>
