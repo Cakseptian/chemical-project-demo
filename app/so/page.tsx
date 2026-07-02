@@ -481,7 +481,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 overflow-y-auto sidebar-scroll space-y-4">
+        <nav className="flex-1 px-3 py-4 overflow-y-auto sidebar-scroll space-y-4" data-lenis-prevent>
           <div>
             <p className="px-2.5 mb-1.5 text-[10px] font-semibold text-white/30 uppercase tracking-wider">Workspace</p>
             <div className="space-y-0.5">
@@ -607,7 +607,7 @@ export default function AdminDashboard() {
                 type="text"
                 placeholder={activeTab === "inventory" ? "Cari barang..." : "Search inventory..."}
                 value={activeTab === "inventory" ? searchQuery : ""}
-                onChange={activeTab === "inventory" ? (e) => setSearchQuery(e.target.value) : undefined}
+                onChange={(e) => { if (activeTab === "inventory") setSearchQuery(e.target.value); }}
                 className="pl-9 pr-3 py-1.5 w-64 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all font-medium"
               />
               <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono font-semibold text-slate-400 bg-white border border-slate-200 rounded px-1.5 py-0.5 shadow-sm">⌘K</kbd>
@@ -643,7 +643,7 @@ export default function AdminDashboard() {
         </header>
 
         {/* MAIN CONTENT AREA */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto" data-lenis-prevent>
           <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
             {activeTab === "dashboard" && (
               <DashboardTab

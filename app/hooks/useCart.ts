@@ -3,6 +3,16 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import type { CartItem } from "../types";
 
+export type ToastType = "success" | "error" | "warning";
+
+export interface Toast {
+    id: number;
+    message: string;
+    type: ToastType;
+}
+
+let toastCounter = 0;
+
 export const useCart = (
     namaPeminjam: string,
     nomorPegawai: string,
@@ -11,6 +21,15 @@ export const useCart = (
     const [cart, setCart] = useState<CartItem[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showCartDrawer, setShowCartDrawer] = useState(false);
+    const [toasts, setToasts] = useState<Toast[]>([]);
+
+    const addToast = (message: string, type: ToastType = "success", duration = 3500) => {
+        const id = ++toastCounter;
+        setToasts((prev) => [...prev, { id, message, type }]);
+        setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), duration);
+    };
+
+    const dismissToast = (id: number) => setToasts((prev) => prev.filter((t) => t.id !== id));
 
     const addToCart = (item: Omit<CartItem, "quantity_to_take"> & { quantity_to_take?: number | string }) => {
         setCart((prevCart) => {
@@ -23,7 +42,7 @@ export const useCart = (
                     );
                 } else {
                     if (!existingItem.is_bulk) {
-                        alert(`⚠️ Stok maksimal ${item.part_name} di sistem hanya ${existingItem.max_quantity} unit!`);
+                        addToast(`Stok maksimal ${item.part_name} di sistem hanya ${existingItem.max_quantity} unit!`, "warning");
                     }
                     return prevCart;
                 }
@@ -71,11 +90,11 @@ export const useCart = (
 
     const checkout = async () => {
         if (!namaPeminjam.trim() || !nomorPegawai.trim()) {
-            alert("⚠️ Nama dan Nomor Pegawai wajib diisi!");
+            addToast("Nama dan Employee ID wajib diisi sebelum checkout.", "warning");
             return;
         }
         if (cart.length === 0) {
-            alert("⚠️ Keranjang masih kosong!");
+            addToast("Keranjang masih kosong.", "warning");
             return;
         }
 
@@ -85,7 +104,7 @@ export const useCart = (
             for (const item of cart) {
                 const qtyToTake = Number(item.quantity_to_take);
                 if (isNaN(qtyToTake) || qtyToTake <= 0) {
-                    alert(`⚠️ Jumlah barang "${item.part_name}" tidak valid!`);
+                    addToast(`Jumlah barang "${item.part_name}" tidak valid.`, "error");
                     setIsSubmitting(false);
                     return;
                 }
@@ -113,14 +132,16 @@ export const useCart = (
                 if (errorInsert) throw errorInsert;
             }
 
-            alert(`✅ BERHASIL!\n\n${cart.length} jenis barang telah diproses.`);
-            localStorage.setItem("gmf_nama", namaPeminjam);
-            localStorage.setItem("gmf_id", nomorPegawai);
+            const itemCount = cart.length;
             resetCart();
             onSuccess?.();
+            // Show success toast after drawer closes
+            setTimeout(() => {
+                addToast(`${itemCount} barang berhasil dipinjam.`, "success");
+            }, 200);
         } catch (err) {
             console.error("Gagal update database:", err);
-            alert("❌ Terjadi kesalahan saat memotong stok di database.");
+            addToast("Terjadi kesalahan saat memotong stok di database.", "error");
         } finally {
             setIsSubmitting(false);
         }
@@ -137,5 +158,7 @@ export const useCart = (
         updateBulkQty,
         resetCart,
         checkout,
+        toasts,
+        dismissToast,
     };
 };
