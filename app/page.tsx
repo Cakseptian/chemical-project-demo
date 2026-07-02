@@ -68,32 +68,45 @@ export default function Home() {
       <main className="flex-1 pb-32">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6">
 
-          {/* Welcome + Profile Inputs */}
-          <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-normal">
-                Hello, {profile.namaPeminjam.trim() ? profile.namaPeminjam.split(" ")[0] : "Mechanic"}
-              </h1>
-              <p className="text-sm text-slate-500 mt-0.5">
-                Ada yang bisa kami bantu untuk inventory hari ini?
+          {/* Welcome Header */}
+          <div className="mb-6">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-normal">
+              Hello, {profile.namaPeminjam.trim() ? profile.namaPeminjam.split(" ")[0] : "Mechanic"}
+            </h1>
+            <p className="text-sm text-slate-500 mt-0.5">
+              Ada yang bisa kami bantu untuk inventory hari ini?
+            </p>
+          </div>
+
+          {/* Identification Panel */}
+          <div className="bg-white border border-slate-200 rounded-xl p-5 mb-6 shadow-sm">
+            <div className="flex flex-col sm:flex-row gap-4 items-end">
+              <div className="flex-1 w-full">
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Employee ID *</label>
+                <input
+                  type="text"
+                  placeholder="Contoh: 512345"
+                  value={profile.nomorPegawai}
+                  onChange={(e) => profile.setNomorPegawai(e.target.value)}
+                  className="w-full h-11 px-4 bg-slate-50/50 border border-slate-200 focus:bg-white rounded-lg text-sm font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#00684a] focus:ring-2 focus:ring-[#00ed64]/10 transition-all"
+                />
+              </div>
+              <div className="flex-1 w-full">
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Nama Peminjam *</label>
+                <input
+                  type="text"
+                  placeholder="Nama Lengkap Anda"
+                  value={profile.namaPeminjam}
+                  onChange={(e) => profile.setNamaPeminjam(e.target.value)}
+                  className="w-full h-11 px-4 bg-slate-50/50 border border-slate-200 focus:bg-white rounded-lg text-sm font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#00684a] focus:ring-2 focus:ring-[#00ed64]/10 transition-all"
+                />
+              </div>
+            </div>
+            {(!profile.nomorPegawai.trim() || !profile.namaPeminjam.trim()) && (
+              <p className="text-[10px] text-amber-600 font-semibold mt-3 flex items-center gap-1 animate-pulse">
+                <span>⚠️</span> Lengkapi Employee ID & Nama Anda untuk meminjam barang dan melihat daftar pinjaman aktif.
               </p>
-            </div>
-            <div className="flex gap-2 sm:max-w-sm">
-              <input
-                type="text"
-                placeholder="Employee ID"
-                value={profile.nomorPegawai}
-                onChange={(e) => profile.setNomorPegawai(e.target.value)}
-                className="w-28 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#00ed64] focus:ring-2 focus:ring-[#00ed64]/10 transition-all shadow-sm"
-              />
-              <input
-                type="text"
-                placeholder="Nama Anda"
-                value={profile.namaPeminjam}
-                onChange={(e) => profile.setNamaPeminjam(e.target.value)}
-                className="w-36 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#00ed64] focus:ring-2 focus:ring-[#00ed64]/10 transition-all shadow-sm"
-              />
-            </div>
+            )}
           </div>
 
           <HeroScanner

@@ -58,11 +58,11 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
       setError(null);
       await qrCodeRef.current.start(
         { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 220, height: 220 }, aspectRatio: 1.0 },
+        { fps: 15, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
           stopScanner().then(() => onScanSuccess(decodedText));
         },
-        () => {}
+        () => { }
       );
       setIsStarted(true);
     } catch (err: any) {
@@ -104,8 +104,8 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
       <div className="relative bg-navy-900">
         <div
           id={containerId}
-          className="w-full [&_video]:w-full [&_video]:h-full [&_video]:object-cover [&_video]:rounded-none [&_canvas]:hidden"
-          style={{ minHeight: "260px", aspectRatio: "1/1" }}
+          className="w-full [&_video]:w-full [&_video]:h-auto [&_video]:object-contain [&_video]:rounded-none [&_canvas]:hidden"
+          style={{ minHeight: "260px" }}
         />
         {/* Scanning indicator */}
         {isStarted && (

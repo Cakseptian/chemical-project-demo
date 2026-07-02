@@ -7,6 +7,20 @@
  * International Journal of Forecasting, 21(2), 303-314.
  */
 
+// =============================================
+// SBA Global Constants — single source of truth
+// =============================================
+
+/** Smoothing parameter α. Syntetos & Boylan (2005) recommend 0.05–0.20;
+ *  0.15 is the practical midpoint for MRO/aerospace intermittent demand. */
+export const SBA_ALPHA = 0.15;
+
+/** Rolling window size in weeks used for demand history analysis. */
+export const SBA_WEEKS_TO_ANALYZE = 21;
+
+/** Multiplier for safety stock: safetyStock = forecast × SBA_SAFETY_STOCK_MULTIPLIER */
+export const SBA_SAFETY_STOCK_MULTIPLIER = 1.5;
+
 export interface SBAResult {
   forecast: number;                        // SBA forecast (dengan bias correction)
   croston: number;                         // Croston forecast (tanpa bias correction)
@@ -23,7 +37,7 @@ export interface SBAResult {
  */
 export const calculateSBA = (
   weeklyDemands: number[],
-  alpha: number = 0.15,
+  alpha: number = SBA_ALPHA,
   applyTrailingZeroCorrection: boolean = true  // non-standard extension, not in Syntetos & Boylan (2005)
 ): SBAResult => {
   // Edge cases
@@ -104,7 +118,7 @@ export const calculateSBA = (
 
 export const calculateSafetyStock = (
   forecastLoan: number,
-  multiplier: number = 1.5
+  multiplier: number = SBA_SAFETY_STOCK_MULTIPLIER
 ): number => {
   return Math.ceil(forecastLoan * multiplier);
 };

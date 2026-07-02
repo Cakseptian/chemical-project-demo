@@ -89,7 +89,7 @@ export const CartDrawer = ({
                                     type="text"
                                     value={nomorPegawai}
                                     onChange={(e) => setNomorPegawai(e.target.value)}
-                                    className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#00ed64] focus:ring-2 focus:ring-[#00ed64]/10 transition-all shadow-sm"
+                                    className="w-full h-11 px-4 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#00684a] focus:ring-2 focus:ring-[#00ed64]/10 transition-all shadow-sm"
                                     placeholder="Employee ID"
                                 />
                             </div>
@@ -99,7 +99,7 @@ export const CartDrawer = ({
                                     type="text"
                                     value={namaPeminjam}
                                     onChange={(e) => setNamaPeminjam(e.target.value)}
-                                    className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:border-[#00ed64] focus:ring-2 focus:ring-[#00ed64]/10 transition-all shadow-sm"
+                                    className="w-full h-11 px-4 bg-white border border-slate-300 rounded-lg text-sm font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#00684a] focus:ring-2 focus:ring-[#00ed64]/10 transition-all shadow-sm"
                                     placeholder="Nama Lengkap"
                                 />
                             </div>
@@ -111,14 +111,14 @@ export const CartDrawer = ({
                     <button
                         onClick={onReset}
                         disabled={isSubmitting}
-                        className="flex-1 bg-white border border-slate-200 text-slate-600 hover:text-slate-800 hover:bg-slate-50 py-3.5 rounded-xl text-xs font-bold transition-all focus:outline-none"
+                        className="flex-1 bg-white border border-slate-200 text-slate-600 hover:text-slate-800 hover:bg-slate-50 py-3.5 rounded-full text-xs font-bold transition-all focus:outline-none"
                     >
                         Reset
                     </button>
                     <button
                         onClick={onCheckout}
                         disabled={isSubmitting}
-                        className="flex-[2] bg-[#00ed64] hover:bg-[#00b545] text-[#001e2b] font-black py-3.5 rounded-xl shadow-lg shadow-[#00ed64]/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2 text-xs focus:outline-none"
+                        className="flex-[2] bg-[#00ed64] hover:bg-[#00b545] text-[#001e2b] font-black py-3.5 rounded-full shadow-lg shadow-[#00ed64]/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2 text-xs focus:outline-none"
                     >
                         {isSubmitting ? (
                             <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#001e2b] border-t-transparent"></div>

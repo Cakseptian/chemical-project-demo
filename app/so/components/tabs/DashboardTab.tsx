@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { SBA_ALPHA, SBA_WEEKS_TO_ANALYZE } from "@/lib/sbaCalculator";
 import type { InventoryItem, DashboardStats, SBAAlert, TransactionLog } from "../../types";
 
 interface DashboardTabProps {
@@ -149,7 +150,7 @@ export const DashboardTab = ({ inventoryList, dashboardStats, sbaAlerts, history
                             </span>
                         </div>
                         <p className="text-xs text-slate-500">
-                            21-week rolling forecast with bias correction (α = 0.30)
+                            {SBA_WEEKS_TO_ANALYZE}-week rolling forecast with bias correction (α = {SBA_ALPHA})
                         </p>
                     </div>
 
