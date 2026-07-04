@@ -1,6 +1,6 @@
 "use client";
 import { useMemo } from "react";
-import { calculateSBA, calculateSafetyStock, calculateROP } from "@/lib/sbaCalculator";
+import { calculateSBA, calculateSafetyStock, calculateROP, SBA_ALPHA, SBA_WEEKS_TO_ANALYZE, SBA_SAFETY_STOCK_MULTIPLIER } from "@/lib/sbaCalculator";
 import type { InventoryItem, TransactionLog, SBAAlert } from "../types";
 
 export const useSBAAlerts = (
@@ -10,37 +10,35 @@ export const useSBAAlerts = (
   return useMemo(() => {
     const now = new Date();
     const alerts = inventoryList.map(item => {
-      const itemLogs = historyList.filter(log => log.inventory_id === item.id);
-      const alpha = item.alpha ?? 0.30;
       const leadTime = item.lead_time ?? 2;
 
-      const weeksToAnalyze = 21;
-      const weeklyLoan: number[] = Array(weeksToAnalyze).fill(0);
-      const weeklyCons: number[] = Array(weeksToAnalyze).fill(0);
+      const weeklyLoan: number[] = Array(SBA_WEEKS_TO_ANALYZE).fill(0);
+      const weeklyCons: number[] = Array(SBA_WEEKS_TO_ANALYZE).fill(0);
 
+      const itemLogs = historyList.filter(log => log.inventory_id === item.id);
       itemLogs.forEach(log => {
         const logDate = new Date(log.created_at);
         const diffTime = Math.abs(now.getTime() - logDate.getTime());
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        const weekIndex = weeksToAnalyze - 1 - Math.floor(diffDays / 7);
+        const weekIndex = SBA_WEEKS_TO_ANALYZE - 1 - Math.floor(diffDays / 7);
 
-        if (weekIndex >= 0 && weekIndex < weeksToAnalyze) {
+        if (weekIndex >= 0 && weekIndex < SBA_WEEKS_TO_ANALYZE) {
           const qty = Math.abs(log.jumlah);
           if (
             log.transaction_type === "CONSUMED_BULK" ||
             log.transaction_type === "RETURN_HABIS" ||
             log.transaction_type === "LOST"
           ) {
-            weeklyCons[weekIndex] += Math.abs(log.jumlah);
+            weeklyCons[weekIndex] += qty;
           } else if (log.transaction_type === "LOAN") {
-            weeklyLoan[weekIndex] += Math.abs(log.jumlah);
+            weeklyLoan[weekIndex] += qty;
           }
         }
       });
 
-      const sbaLoan = calculateSBA(weeklyLoan, alpha);
-      const sbaCons = calculateSBA(weeklyCons, alpha);
-      const safetyStock = calculateSafetyStock(sbaLoan.forecast, 1.5);
+      const sbaLoan = calculateSBA(weeklyLoan, SBA_ALPHA);
+      const sbaCons = calculateSBA(weeklyCons, SBA_ALPHA);
+      const safetyStock = calculateSafetyStock(sbaLoan.forecast, SBA_SAFETY_STOCK_MULTIPLIER);
       const rop = calculateROP(sbaCons.forecast, leadTime, safetyStock);
       const currentStock = Number(item.quantity);
 
@@ -68,7 +66,7 @@ export const useSBAAlerts = (
         status,
         color,
         action,
-        alpha,
+        alpha: SBA_ALPHA,
         leadTime,
         dataPoints: sbaLoan.dataPoints,
         positivePeriods: sbaLoan.positivePeriods

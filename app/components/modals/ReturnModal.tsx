@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import { getRelativeTime } from "@/app/utils/timeUtils";
 import type { ActiveLoan } from "@/app/types";
 
@@ -14,6 +15,15 @@ interface ReturnModalProps {
 export const ReturnModal = ({
     isOpen, onClose, activeLoans, isFetchingLoans, isReturning, onProsesReturn,
 }: ReturnModalProps) => {
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+        return () => { document.body.style.overflow = ""; };
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     return (
@@ -27,7 +37,7 @@ export const ReturnModal = ({
                     <button onClick={onClose} className="w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-colors text-xl font-light focus:outline-none">✕</button>
                 </div>
 
-                <div className="p-5 overflow-y-auto flex-1 bg-slate-100/30">
+                <div className="p-5 overflow-y-auto flex-1 bg-slate-100/30" data-lenis-prevent>
                     {isFetchingLoans ? (
                         <div className="flex flex-col items-center justify-center py-10">
                             <div className="animate-spin w-8 h-8 border-4 border-slate-200 border-t-[#00ed64] rounded-full mb-4"></div>
@@ -69,7 +79,11 @@ export const ReturnModal = ({
                         </div>
                     ) : (
                         <div className="text-center py-10">
-                            <div className="text-4xl mb-4 opacity-50">🎉</div>
+                            <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg className="w-6 h-6 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                                </svg>
+                            </div>
                             <p className="text-slate-500 font-bold text-sm">Tidak ada barang yang sedang Anda pinjam.</p>
                             <p className="text-xs text-slate-400 mt-1">Semua barang sudah dikembalikan!</p>
                         </div>

@@ -1,14 +1,16 @@
 "use client";
 import { useMemo } from "react";
-import type { InventoryItem, TransactionLog, ItemRequest, DashboardStats } from "../types";
+import type { InventoryItem, TransactionLog, ItemRequest, DashboardStats, SBAAlert } from "../types";
 
 export const useDashboardStats = (
   inventoryList: InventoryItem[],
   historyList: TransactionLog[],
-  requestList: ItemRequest[]
+  requestList: ItemRequest[],
+  sbaAlerts: SBAAlert[]
 ): DashboardStats => {
   return useMemo(() => {
-    const lowStockCount = inventoryList.filter(item => Number(item.quantity) <= 5).length;
+    // lowStockCount berbasis ROP dari SBA — lebih akurat dari threshold statis
+    const lowStockCount = sbaAlerts.filter(alert => alert.status === "REORDER").length;
     const pendingReqCount = requestList.filter(req => req.status === "PENDING").length;
     const actualBorrowings = historyList.filter(log => log.nama_peminjam !== "ADMIN (SO)" && log.jumlah > 0);
 
@@ -36,5 +38,5 @@ export const useDashboardStats = (
       maxUserCount,
       totalBorrowings: actualBorrowings.length,
     };
-  }, [inventoryList, historyList, requestList]);
+  }, [inventoryList, historyList, requestList, sbaAlerts]);
 };
