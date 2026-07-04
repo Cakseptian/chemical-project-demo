@@ -103,6 +103,11 @@ const writeAndClose = (printWindow: Window, title: string, styles: string, bodyC
 // ==========================================
 
 export const printSingleQR = (item: InventoryItem): void => {
+  // Skip printing if stock is zero
+  if ((Number(item.quantity) || 0) <= 0) {
+    return alert(`Stok "${item.part_name}" adalah 0, tidak ada stiker yang perlu dicetak.`);
+  }
+
   const printWindow = openPrintWindow(`Cetak QR - ${item.part_name}`);
   if (!printWindow) return;
 
@@ -124,14 +129,18 @@ export const printSingleQR = (item: InventoryItem): void => {
 export const printAllQR = (inventoryList: InventoryItem[]): void => {
   if (!inventoryList.length) return alert("Belum ada barang di database!");
 
+  // Filter out items with zero stock
+  const activeItems = inventoryList.filter(item => (Number(item.quantity) || 0) > 0);
+  if (!activeItems.length) return alert("Semua barang memiliki stok 0, tidak ada yang perlu dicetak.");
+
   const printWindow = openPrintWindow("Cetak Semua QR Code");
   if (!printWindow) return;
 
-  const itemsHtml = inventoryList.flatMap(item =>
+  const itemsHtml = activeItems.flatMap(item =>
     Array(Math.max(0, Number(item.quantity) || 0)).fill(generateQRLabelHtml(item))
   ).join('');
 
-  const totalStiker = inventoryList.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
+  const totalStiker = activeItems.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
 
   const bodyContent = `
       <div class="header no-print">
@@ -148,11 +157,15 @@ export const printAllQR = (inventoryList: InventoryItem[]): void => {
 export const printLocationList = (inventoryList: InventoryItem[]): void => {
   if (!inventoryList.length) return alert("Belum ada data barang!");
 
+  // Filter out items with zero stock
+  const activeItems = inventoryList.filter(item => (Number(item.quantity) || 0) > 0);
+  if (!activeItems.length) return alert("Semua barang memiliki stok 0, tidak ada yang perlu dicetak.");
+
   const printWindow = openPrintWindow("List Barang & Expired per Lokasi");
   if (!printWindow) return;
 
   // Grouping data menggunakan reduce agar lebih ringkas
-  const groupedData = inventoryList.reduce((acc, item) => {
+  const groupedData = activeItems.reduce((acc, item) => {
     const loc = item.location?.trim().toUpperCase() || "TANPA LOKASI";
     (acc[loc] = acc[loc] || []).push(item);
     return acc;
