@@ -21,6 +21,7 @@ export const ActiveBorrows = ({ activeLoans, nomorPegawai, onManageAll, onQuickR
                 <button
                     onClick={onManageAll}
                     disabled={!nomorPegawai.trim()}
+                    suppressHydrationWarning
                     className="text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1"
                 >
                     Kelola ({activeLoans.length})

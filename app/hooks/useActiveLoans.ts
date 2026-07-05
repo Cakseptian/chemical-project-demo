@@ -12,6 +12,8 @@ export const useActiveLoans = (
     const [isFetchingLoans, setIsFetchingLoans] = useState(false);
     const [isReturning, setIsReturning] = useState(false);
     const [showReturnModal, setShowReturnModal] = useState(false);
+    // ponytail: single focused loan for quick-return flow; null = show all loans
+    const [focusedLoanId, setFocusedLoanId] = useState<number | null>(null);
 
     const fetchLoans = useCallback(async () => {
         if (!nomorPegawai.trim()) {
@@ -32,12 +34,11 @@ export const useActiveLoans = (
         }
     }, [nomorPegawai]);
 
-    // Auto-fetch on nomorPegawai change
     useEffect(() => {
         fetchLoans();
     }, [fetchLoans]);
 
-    const openReturnModal = async () => {
+    const openReturnModal = async (loan?: ActiveLoan) => {
         if (!nomorPegawai.trim()) {
             alert("⚠️ Silakan masukkan Employee ID terlebih dahulu!");
             return;
@@ -53,46 +54,40 @@ export const useActiveLoans = (
                 .order("created_at", { ascending: false });
             if (error) throw error;
             setActiveLoans((data || []) as ActiveLoan[]);
+            // ponytail: focus a single loan when called from quick-return button
+            setFocusedLoanId(loan?.id ?? null);
             setShowReturnModal(true);
         } catch (err) {
             console.error("Gagal mengambil data pinjaman:", err);
-            alert("❌ Gagal mengambil data pinjaman.");
         } finally {
             setIsFetchingLoans(false);
         }
     };
 
+    /**
+     * prosesReturn — no prompt(), no confirm(), no alert().
+     * qtyDikembalikan is passed from the modal UI.
+     * Returns { ok, message } so the modal can show inline feedback.
+     */
     const prosesReturn = async (
         loanTransactionId: number,
         inventoryId: number,
         qtyDipinjam: number,
-        statusAkhir: "HABIS" | "SISA"
-    ) => {
-        if (isReturning) return;
+        statusAkhir: "HABIS" | "SISA",
+        qtyDikembalikan: number = 0
+    ): Promise<{ ok: boolean; message: string }> => {
+        if (isReturning) return { ok: false, message: "Sedang memproses…" };
         setIsReturning(true);
 
         try {
-            let qtyDikembalikan = 0;
             let qtyHabis = 0;
 
             if (statusAkhir === "SISA") {
-                const inputQty = prompt(
-                    `Berapa unit yang Anda kembalikan? (Maksimal: ${qtyDipinjam})`,
-                    qtyDipinjam.toString()
-                );
-                if (!inputQty) {
-                    setIsReturning(false);
-                    return;
-                }
-                qtyDikembalikan = parseInt(inputQty);
-                if (isNaN(qtyDikembalikan) || qtyDikembalikan < 1 || qtyDikembalikan > qtyDipinjam) {
-                    alert(`⚠️ Jumlah tidak valid. Harus antara 1 - ${qtyDipinjam}`);
-                    setIsReturning(false);
-                    return;
-                }
                 qtyHabis = qtyDipinjam - qtyDikembalikan;
             } else {
+                // HABIS: all consumed, nothing returned
                 qtyHabis = qtyDipinjam;
+                qtyDikembalikan = 0;
             }
 
             let returnTxId: number | null = null;
@@ -101,17 +96,15 @@ export const useActiveLoans = (
             if (qtyDikembalikan > 0) {
                 const { data: returnData, error: returnError } = await supabase
                     .from("transactions")
-                    .insert([
-                        {
-                            inventory_id: inventoryId,
-                            part_name: loan?.part_name || "",
-                            part_number: loan?.part_number || null,
-                            nama_peminjam: namaPeminjam || "RETURN",
-                            nomor_pegawai: nomorPegawai,
-                            jumlah: -qtyDikembalikan,
-                            transaction_type: "RETURN",
-                        },
-                    ])
+                    .insert([{
+                        inventory_id: inventoryId,
+                        part_name: loan?.part_name || "",
+                        part_number: loan?.part_number || null,
+                        nama_peminjam: namaPeminjam || "RETURN",
+                        nomor_pegawai: nomorPegawai,
+                        jumlah: -qtyDikembalikan,
+                        transaction_type: "RETURN",
+                    }])
                     .select("id")
                     .single();
                 if (returnError) throw returnError;
@@ -123,24 +116,23 @@ export const useActiveLoans = (
                     .eq("id", inventoryId)
                     .single();
                 const newQty = (Number(currentInv?.quantity || 0) + qtyDikembalikan).toString();
+                // ponytail: rack_type not modified on return — rack classification is admin's domain
                 await supabase
                     .from("inventory")
-                    .update({ quantity: newQty, rack_type: "USED" })
+                    .update({ quantity: newQty })
                     .eq("id", inventoryId);
             }
 
             if (qtyHabis > 0) {
-                const { error: consError } = await supabase.from("transactions").insert([
-                    {
-                        inventory_id: inventoryId,
-                        part_name: loan?.part_name || "",
-                        part_number: loan?.part_number || null,
-                        nama_peminjam: namaPeminjam || "CONSUMED",
-                        nomor_pegawai: nomorPegawai,
-                        jumlah: qtyHabis,
-                        transaction_type: "CONSUMED_BULK",
-                    },
-                ]);
+                const { error: consError } = await supabase.from("transactions").insert([{
+                    inventory_id: inventoryId,
+                    part_name: loan?.part_name || "",
+                    part_number: loan?.part_number || null,
+                    nama_peminjam: namaPeminjam || "CONSUMED",
+                    nomor_pegawai: nomorPegawai,
+                    jumlah: qtyHabis,
+                    transaction_type: "CONSUMED_BULK",
+                }]);
                 if (consError) throw consError;
             }
 
@@ -150,35 +142,24 @@ export const useActiveLoans = (
                 .eq("id", loanTransactionId);
             if (updateError) throw updateError;
 
-            setActiveLoans((prev) => prev.filter((loan) => loan.id !== loanTransactionId));
+            setActiveLoans((prev) => prev.filter((l) => l.id !== loanTransactionId));
             onActivityChange?.();
 
-            let message = "✅ Pengembalian berhasil dicatat!\n\n";
-            if (qtyDikembalikan > 0) message += `↩️ ${qtyDikembalikan} unit dikembalikan\n`;
-            if (qtyHabis > 0) message += `🗑️ ${qtyHabis} unit habis terpakai\n`;
-            alert(message);
+            const parts: string[] = [];
+            if (qtyDikembalikan > 0) parts.push(`${qtyDikembalikan} unit dikembalikan`);
+            if (qtyHabis > 0) parts.push(`${qtyHabis} unit habis terpakai`);
+            return { ok: true, message: parts.join(" · ") || "Pengembalian dicatat." };
         } catch (err) {
             console.error("Gagal memproses pengembalian:", err);
-            alert("❌ Gagal memproses pengembalian.");
+            return { ok: false, message: "Gagal memproses pengembalian. Coba lagi." };
         } finally {
             setIsReturning(false);
         }
     };
 
+    // ponytail: quickReturn now opens the modal pre-focused on this loan — no confirm() dialogs
     const quickReturn = (loan: ActiveLoan) => {
-        const choice = confirm(
-            `Kembalikan item "${loan.part_name}"?\n\nKlik OK jika barang dikembalikan SISA (Utuh).\nKlik BATAL jika barang HABIS terpakai.`
-        );
-        if (choice) {
-            prosesReturn(loan.id, loan.inventory_id, Math.abs(loan.jumlah), "SISA");
-        } else {
-            const confirmHabis = confirm(
-                `Konfirmasi: Tandai "${loan.part_name}" sebagai habis terpakai (dibuang)?`
-            );
-            if (confirmHabis) {
-                prosesReturn(loan.id, loan.inventory_id, Math.abs(loan.jumlah), "HABIS");
-            }
-        }
+        openReturnModal(loan);
     };
 
     return {
@@ -188,6 +169,8 @@ export const useActiveLoans = (
         isReturning,
         showReturnModal,
         setShowReturnModal,
+        focusedLoanId,
+        setFocusedLoanId,
         fetchLoans,
         openReturnModal,
         prosesReturn,

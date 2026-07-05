@@ -241,10 +241,11 @@ export default function Home() {
 
       <ReturnModal
         isOpen={loans.showReturnModal}
-        onClose={() => loans.setShowReturnModal(false)}
+        onClose={() => { loans.setShowReturnModal(false); loans.setFocusedLoanId(null); }}
         activeLoans={loans.activeLoans}
         isFetchingLoans={loans.isFetchingLoans}
         isReturning={loans.isReturning}
+        focusedLoanId={loans.focusedLoanId}
         onProsesReturn={loans.prosesReturn}
       />
 
