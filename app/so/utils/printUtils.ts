@@ -102,7 +102,7 @@ const writeAndClose = (printWindow: Window, title: string, styles: string, bodyC
 // MAIN EXPORT FUNCTIONS
 // ==========================================
 
-export const printSingleQR = (item: InventoryItem): void => {
+export const printSingleQR = (item: InventoryItem, overrideQty?: number): void => {
   // Skip printing if stock is zero
   if ((Number(item.quantity) || 0) <= 0) {
     return alert(`Stok "${item.part_name}" adalah 0, tidak ada stiker yang perlu dicetak.`);
@@ -111,7 +111,7 @@ export const printSingleQR = (item: InventoryItem): void => {
   const printWindow = openPrintWindow(`Cetak QR - ${item.part_name}`);
   if (!printWindow) return;
 
-  const qty = Math.max(1, Number(item.quantity) || 1);
+  const qty = overrideQty != null ? Math.max(1, overrideQty) : Math.max(1, Number(item.quantity) || 1);
   const itemsHtml = Array(qty).fill(generateQRLabelHtml(item)).join('');
 
   const bodyContent = `
