@@ -33,9 +33,19 @@ export const useCart = (
 
     const addToCart = (item: Omit<CartItem, "quantity_to_take"> & { quantity_to_take?: number | string }) => {
         setCart((prevCart) => {
-            const existingItem = prevCart.find((i) => i.id === item.id);
+            // ponytail: dedup key is unit_id when present (new labels), else inventory id (old labels)
+            const dedupKey = item.unit_id ?? null;
+            const existingItem = dedupKey
+                ? prevCart.find((i) => i.unit_id === dedupKey)
+                : prevCart.find((i) => i.id === item.id);
 
             if (existingItem) {
+                if (dedupKey) {
+                    // Same physical unit scanned twice — reject, not an increment
+                    addToast(`Unit ini sudah ada di keranjang! (${item.part_name})`, "warning");
+                    return prevCart;
+                }
+                // Old-label path: increment qty like before
                 if (!existingItem.is_bulk && Number(existingItem.quantity_to_take) < existingItem.max_quantity) {
                     return prevCart.map((i) =>
                         i.id === item.id ? { ...i, quantity_to_take: Number(i.quantity_to_take) + 1 } : i
@@ -127,15 +137,24 @@ export const useCart = (
                         jumlah: qtyToTake,
                         transaction_type: statusTransaksi,
                         is_returned: false,
+                        // ponytail: unit_id written when present; null for old-label loans — both are valid
+                        unit_id: item.unit_id ?? null,
                     },
                 ]);
                 if (errorInsert) throw errorInsert;
+
+                // Mark unit as loaned when a unit_id is present
+                if (item.unit_id && statusTransaksi === "LOAN") {
+                    await supabase
+                        .from("inventory_units")
+                        .update({ status: "loaned" })
+                        .eq("id", item.unit_id);
+                }
             }
 
             const itemCount = cart.length;
             resetCart();
             onSuccess?.();
-            // Show success toast after drawer closes
             setTimeout(() => {
                 addToast(`${itemCount} barang berhasil dipinjam.`, "success");
             }, 200);

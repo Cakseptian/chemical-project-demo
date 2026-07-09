@@ -1,4 +1,5 @@
 // app/so/utils/printUtils.ts
+import { supabase } from "@/lib/supabase";
 import type { InventoryItem } from "../types";
 
 const BASE_URL = "https://stock-opname-project-gmf.vercel.app";
@@ -62,24 +63,30 @@ const LOCATION_STYLES = `
 // ==========================================
 // HELPER FUNCTIONS
 // ==========================================
+
+// ponytail: unit QR encodes the unit UUID; barcode_id fallback uses the old path
+const generateUnitQRUrl = (unitId: string): string =>
+  `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`${BASE_URL}/?scan=${unitId}`)}`;
+
+// ponytail: kept for printLocationList which doesn't create unit rows
 const generateQRUrl = (barcodeId: string): string =>
   `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(`${BASE_URL}/?scan=${barcodeId}`)}`;
 
-const generateQRLabelHtml = (item: InventoryItem): string => `
+const generateUnitLabelHtml = (item: InventoryItem, unitId: string): string => `
   <div class="label-box">
     <h2 title="${item.part_name}">${item.part_name}</h2>
     <p>PN: ${item.part_number || "-"}</p>
-    <img src="${generateQRUrl(item.barcode_id)}" alt="QR" />
+    <img src="${generateUnitQRUrl(unitId)}" alt="QR" />
     <p>Batch: ${item.batch_number || "-"}</p>
     <p>Exp: ${item.expired_date_fixed || "-"}</p>
-    <div class="uuid">${item.barcode_id}</div>
+    <div class="uuid">${unitId.slice(0, 18)}…</div>
   </div>
 `;
 
-const openPrintWindow = (title: string): Window | null => {
-  const printWindow = window.open('', '_blank');
+const openPrintWindow = (): Window | null => {
+  const printWindow = window.open("", "_blank");
   if (!printWindow) {
-    alert('Popup diblokir! Izinkan popup untuk situs ini.');
+    alert("Popup diblokir! Izinkan popup untuk situs ini.");
     return null;
   }
   return printWindow;
@@ -98,21 +105,41 @@ const writeAndClose = (printWindow: Window, title: string, styles: string, bodyC
   printWindow.document.close();
 };
 
+// Insert N unit rows into inventory_units, return their UUIDs
+const createUnitRows = async (inventoryId: number, qty: number): Promise<string[]> => {
+  const rows = Array.from({ length: qty }, () => ({ inventory_id: inventoryId }));
+  const { data, error } = await supabase
+    .from("inventory_units")
+    .insert(rows)
+    .select("id");
+  if (error) throw error;
+  return (data ?? []).map((r: { id: string }) => r.id);
+};
+
 // ==========================================
 // MAIN EXPORT FUNCTIONS
 // ==========================================
 
-export const printSingleQR = (item: InventoryItem, overrideQty?: number): void => {
-  // Skip printing if stock is zero
+export const printSingleQR = async (item: InventoryItem, overrideQty?: number): Promise<void> => {
   if ((Number(item.quantity) || 0) <= 0) {
     return alert(`Stok "${item.part_name}" adalah 0, tidak ada stiker yang perlu dicetak.`);
   }
 
-  const printWindow = openPrintWindow(`Cetak QR - ${item.part_name}`);
+  const qty = overrideQty != null ? Math.max(1, overrideQty) : Math.max(1, Number(item.quantity) || 1);
+
+  let unitIds: string[];
+  try {
+    unitIds = await createUnitRows(item.id, qty);
+  } catch (err) {
+    console.error("Gagal membuat unit rows:", err);
+    alert("Gagal menyimpan unit ke database. Coba lagi.");
+    return;
+  }
+
+  const printWindow = openPrintWindow();
   if (!printWindow) return;
 
-  const qty = overrideQty != null ? Math.max(1, overrideQty) : Math.max(1, Number(item.quantity) || 1);
-  const itemsHtml = Array(qty).fill(generateQRLabelHtml(item)).join('');
+  const itemsHtml = unitIds.map((uid) => generateUnitLabelHtml(item, uid)).join("");
 
   const bodyContent = `
       <div class="header no-print">
@@ -126,21 +153,32 @@ export const printSingleQR = (item: InventoryItem, overrideQty?: number): void =
   writeAndClose(printWindow, `Cetak QR - ${item.part_name}`, QR_STYLES, bodyContent);
 };
 
-export const printAllQR = (inventoryList: InventoryItem[]): void => {
+export const printAllQR = async (inventoryList: InventoryItem[]): Promise<void> => {
   if (!inventoryList.length) return alert("Belum ada barang di database!");
 
-  // Filter out items with zero stock
-  const activeItems = inventoryList.filter(item => (Number(item.quantity) || 0) > 0);
+  const activeItems = inventoryList.filter((item) => (Number(item.quantity) || 0) > 0);
   if (!activeItems.length) return alert("Semua barang memiliki stok 0, tidak ada yang perlu dicetak.");
 
-  const printWindow = openPrintWindow("Cetak Semua QR Code");
+  // Insert unit rows for all items
+  let allLabels: { item: InventoryItem; uid: string }[] = [];
+  try {
+    for (const item of activeItems) {
+      const qty = Math.max(0, Number(item.quantity) || 0);
+      if (qty === 0) continue;
+      const unitIds = await createUnitRows(item.id, qty);
+      allLabels = allLabels.concat(unitIds.map((uid) => ({ item, uid })));
+    }
+  } catch (err) {
+    console.error("Gagal membuat unit rows:", err);
+    alert("Gagal menyimpan unit ke database. Coba lagi.");
+    return;
+  }
+
+  const printWindow = openPrintWindow();
   if (!printWindow) return;
 
-  const itemsHtml = activeItems.flatMap(item =>
-    Array(Math.max(0, Number(item.quantity) || 0)).fill(generateQRLabelHtml(item))
-  ).join('');
-
-  const totalStiker = activeItems.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
+  const itemsHtml = allLabels.map(({ item, uid }) => generateUnitLabelHtml(item, uid)).join("");
+  const totalStiker = allLabels.length;
 
   const bodyContent = `
       <div class="header no-print">
@@ -157,14 +195,12 @@ export const printAllQR = (inventoryList: InventoryItem[]): void => {
 export const printLocationList = (inventoryList: InventoryItem[]): void => {
   if (!inventoryList.length) return alert("Belum ada data barang!");
 
-  // Filter out items with zero stock
-  const activeItems = inventoryList.filter(item => (Number(item.quantity) || 0) > 0);
+  const activeItems = inventoryList.filter((item) => (Number(item.quantity) || 0) > 0);
   if (!activeItems.length) return alert("Semua barang memiliki stok 0, tidak ada yang perlu dicetak.");
 
-  const printWindow = openPrintWindow("List Barang & Expired per Lokasi");
+  const printWindow = openPrintWindow();
   if (!printWindow) return;
 
-  // Grouping data menggunakan reduce agar lebih ringkas
   const groupedData = activeItems.reduce((acc, item) => {
     const loc = item.location?.trim().toUpperCase() || "TANPA LOKASI";
     (acc[loc] = acc[loc] || []).push(item);
@@ -172,30 +208,32 @@ export const printLocationList = (inventoryList: InventoryItem[]): void => {
   }, {} as Record<string, InventoryItem[]>);
 
   const today = new Date();
-  const todayStr = today.toLocaleDateString('id-ID');
+  const todayStr = today.toLocaleDateString("id-ID");
 
-  // Membangun HTML tabel dengan map & join
-  const locationHtml = Object.keys(groupedData).sort().map(loc => {
-    const rowsHtml = groupedData[loc]
-      .sort((a, b) => a.part_name.localeCompare(b.part_name))
-      .map(item => {
-        const expDate = item.expired_date_fixed ? new Date(item.expired_date_fixed) : null;
-        const isExpired = expDate ? expDate < today : false;
-        const formattedDate = expDate
-          ? expDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
-          : "-";
+  const locationHtml = Object.keys(groupedData)
+    .sort()
+    .map((loc) => {
+      const rowsHtml = groupedData[loc]
+        .sort((a, b) => a.part_name.localeCompare(b.part_name))
+        .map((item) => {
+          const expDate = item.expired_date_fixed ? new Date(item.expired_date_fixed) : null;
+          const isExpired = expDate ? expDate < today : false;
+          const formattedDate = expDate
+            ? expDate.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })
+            : "-";
 
-        return `
+          return `
                     <tr>
                         <td><strong>${item.part_name}</strong></td>
                         <td>${item.part_number || "-"}</td>
-                        <td class="${isExpired ? 'expired-danger' : ''}">${formattedDate}${isExpired ? ' (EXPIRED!)' : ''}</td>
+                        <td class="${isExpired ? "expired-danger" : ""}">${formattedDate}${isExpired ? " (EXPIRED!)" : ""}</td>
                         <td style="text-align: center; font-weight: 800;">${item.quantity || 0}</td>
                     </tr>
                 `;
-      }).join('');
+        })
+        .join("");
 
-    return `
+      return `
             <div class="location-section">
                 <h2 class="location-title">📍 LOKASI: ${loc}</h2>
                 <table>
@@ -211,7 +249,8 @@ export const printLocationList = (inventoryList: InventoryItem[]): void => {
                 </table>
             </div>
         `;
-  }).join('');
+    })
+    .join("");
 
   const bodyContent = `
       <div class="no-print" style="margin-bottom: 10px; display: flex; justify-content: flex-end;">
@@ -224,5 +263,6 @@ export const printLocationList = (inventoryList: InventoryItem[]): void => {
       ${locationHtml}
     `;
 
+  // ponytail: location list doesn't need unit rows — it's just a paper reference, not a scannable label
   writeAndClose(printWindow, "List Barang & Expired per Lokasi", LOCATION_STYLES, bodyContent);
 };

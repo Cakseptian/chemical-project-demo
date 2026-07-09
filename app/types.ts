@@ -9,6 +9,7 @@ export interface CartItem {
     barcode_id: string;
     is_bulk: boolean;
     uom: string;
+    unit_id?: string; // UUID of physical unit — present for new QR labels, absent for old barcode_id labels
 }
 
 export interface RequestFormData {
@@ -31,6 +32,7 @@ export interface ActiveLoan {
     part_number?: string | null;
     jumlah: number;
     created_at: string;
+    unit_id?: string | null; // UUID of physical unit — null for pre-migration loans
 }
 
 export interface TeamActivity {

@@ -65,80 +65,103 @@ export const useActiveLoans = (
     };
 
     /**
-     * prosesReturn — no prompt(), no confirm(), no alert().
-     * qtyDikembalikan is passed from the modal UI.
-     * Returns { ok, message } so the modal can show inline feedback.
+     * prosesReturn — scan-driven unit-level return.
+     *
+     * For new loans (unit_id present on the LOAN transaction):
+     *   returnedUnitIds  — units physically scanned back → status 'available', qty +1, RETURN tx
+     *   consumedUnitIds  — units tapped "Gone" → status 'consumed', CONSUMED_BULK tx, no qty change
+     *
+     * For old loans (unit_id is null, pre-migration):
+     *   hard cutover — pass returnedUnitIds=[], consumedUnitIds=[] to mark all as consumed (one-tap).
+     *   The modal handles the "All Consumed" shortcut by calling with both arrays empty.
+     *
+     * Returns { ok, message } for inline modal feedback.
      */
     const prosesReturn = async (
         loanTransactionId: number,
         inventoryId: number,
         qtyDipinjam: number,
-        statusAkhir: "HABIS" | "SISA",
-        qtyDikembalikan: number = 0
+        returnedUnitIds: string[],
+        consumedUnitIds: string[]
     ): Promise<{ ok: boolean; message: string }> => {
         if (isReturning) return { ok: false, message: "Sedang memproses…" };
         setIsReturning(true);
 
         try {
-            let qtyHabis = 0;
-
-            if (statusAkhir === "SISA") {
-                qtyHabis = qtyDipinjam - qtyDikembalikan;
-            } else {
-                // HABIS: all consumed, nothing returned
-                qtyHabis = qtyDipinjam;
-                qtyDikembalikan = 0;
-            }
-
-            let returnTxId: number | null = null;
             const loan = activeLoans.find((l) => l.id === loanTransactionId);
+            const baseTx = {
+                inventory_id: inventoryId,
+                part_name: loan?.part_name || "",
+                part_number: loan?.part_number || null,
+                nama_peminjam: namaPeminjam || "",
+                nomor_pegawai: nomorPegawai,
+            };
 
-            if (qtyDikembalikan > 0) {
-                const { data: returnData, error: returnError } = await supabase
-                    .from("transactions")
-                    .insert([{
-                        inventory_id: inventoryId,
-                        part_name: loan?.part_name || "",
-                        part_number: loan?.part_number || null,
-                        nama_peminjam: namaPeminjam || "RETURN",
-                        nomor_pegawai: nomorPegawai,
-                        jumlah: -qtyDikembalikan,
+            // Handle returned units
+            if (returnedUnitIds.length > 0) {
+                const { error: returnError } = await supabase.from("transactions").insert(
+                    returnedUnitIds.map((uid) => ({
+                        ...baseTx,
+                        jumlah: -1,
                         transaction_type: "RETURN",
-                    }])
-                    .select("id")
-                    .single();
+                        unit_id: uid,
+                    }))
+                );
                 if (returnError) throw returnError;
-                returnTxId = returnData.id;
 
+                // Add qty back to inventory for each returned unit
                 const { data: currentInv } = await supabase
                     .from("inventory")
                     .select("quantity")
                     .eq("id", inventoryId)
                     .single();
-                const newQty = (Number(currentInv?.quantity || 0) + qtyDikembalikan).toString();
-                // ponytail: rack_type not modified on return — rack classification is admin's domain
+                const newQty = (Number(currentInv?.quantity || 0) + returnedUnitIds.length).toString();
+                await supabase.from("inventory").update({ quantity: newQty }).eq("id", inventoryId);
+
+                // Mark units as available
                 await supabase
-                    .from("inventory")
-                    .update({ quantity: newQty })
-                    .eq("id", inventoryId);
+                    .from("inventory_units")
+                    .update({ status: "available" })
+                    .in("id", returnedUnitIds);
             }
 
-            if (qtyHabis > 0) {
-                const { error: consError } = await supabase.from("transactions").insert([{
-                    inventory_id: inventoryId,
-                    part_name: loan?.part_name || "",
-                    part_number: loan?.part_number || null,
-                    nama_peminjam: namaPeminjam || "CONSUMED",
-                    nomor_pegawai: nomorPegawai,
-                    jumlah: qtyHabis,
-                    transaction_type: "CONSUMED_BULK",
-                }]);
+            // Handle consumed units
+            const effectiveConsumedCount = loan?.unit_id
+                ? consumedUnitIds.length
+                : qtyDipinjam; // old loan — full qty consumed
+
+            if (effectiveConsumedCount > 0) {
+                const consumedRows = consumedUnitIds.length > 0
+                    ? consumedUnitIds.map((uid) => ({
+                        ...baseTx,
+                        jumlah: 1,
+                        transaction_type: "CONSUMED_BULK",
+                        unit_id: uid,
+                    }))
+                    : [{
+                        // ponytail: old loan fallback — one aggregate CONSUMED_BULK row
+                        ...baseTx,
+                        jumlah: effectiveConsumedCount,
+                        transaction_type: "CONSUMED_BULK",
+                        unit_id: null,
+                    }];
+
+                const { error: consError } = await supabase.from("transactions").insert(consumedRows);
                 if (consError) throw consError;
+
+                // Mark units as consumed (only for new loans with unit IDs)
+                if (consumedUnitIds.length > 0) {
+                    await supabase
+                        .from("inventory_units")
+                        .update({ status: "consumed" })
+                        .in("id", consumedUnitIds);
+                }
             }
 
+            // Mark original LOAN as returned
             const { error: updateError } = await supabase
                 .from("transactions")
-                .update({ is_returned: true, return_transaction_id: returnTxId })
+                .update({ is_returned: true })
                 .eq("id", loanTransactionId);
             if (updateError) throw updateError;
 
@@ -146,8 +169,8 @@ export const useActiveLoans = (
             onActivityChange?.();
 
             const parts: string[] = [];
-            if (qtyDikembalikan > 0) parts.push(`${qtyDikembalikan} unit dikembalikan`);
-            if (qtyHabis > 0) parts.push(`${qtyHabis} unit habis terpakai`);
+            if (returnedUnitIds.length > 0) parts.push(`${returnedUnitIds.length} unit dikembalikan`);
+            if (effectiveConsumedCount > 0) parts.push(`${effectiveConsumedCount} unit habis terpakai`);
             return { ok: true, message: parts.join(" · ") || "Pengembalian dicatat." };
         } catch (err) {
             console.error("Gagal memproses pengembalian:", err);

@@ -8,6 +8,7 @@ import { useRequests } from "./hooks/useRequests";
 import { useScanner } from "./hooks/useScanner";
 import { useDashboardStats } from "./hooks/useDashboardStats";
 import { useSBAAlerts } from "./hooks/useSBAAlerts";
+import { useActiveLoansAdmin } from "./hooks/useActiveLoansAdmin";
 import { printSingleQR, printAllQR, printLocationList } from "./utils/printUtils";
 import type { InventoryItem } from "./types";
 import { NavItem } from "./components/layout/NavItem";
@@ -76,6 +77,7 @@ export default function AdminDashboard() {
 
   const sbaAlerts = useSBAAlerts(inventoryList, historyList);
   const dashboardStats = useDashboardStats(inventoryList, historyList, requestList, sbaAlerts);
+  const activeLoansAdmin = useActiveLoansAdmin();
 
   useEffect(() => {
     console.info(
@@ -253,7 +255,7 @@ export default function AdminDashboard() {
         <main className="flex-1 overflow-y-auto" data-lenis-prevent>
           <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
             {activeTab === "dashboard" && (
-              <DashboardTab inventoryList={inventoryList} dashboardStats={dashboardStats} sbaAlerts={sbaAlerts} historyList={historyList} />
+              <DashboardTab inventoryList={inventoryList} dashboardStats={dashboardStats} sbaAlerts={sbaAlerts} historyList={historyList} activeLoansAdmin={activeLoansAdmin} />
             )}
             {activeTab === "scanner" && (
               <ScannerTab
@@ -343,7 +345,7 @@ export default function AdminDashboard() {
                 Batal
               </button>
               <button
-                onClick={() => { printSingleQR(bulkPrintTarget.item, bulkPrintTarget.count); setBulkPrintTarget(null); }}
+                onClick={() => { void printSingleQR(bulkPrintTarget.item, bulkPrintTarget.count); setBulkPrintTarget(null); }}
                 className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-xl transition-colors flex items-center justify-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
