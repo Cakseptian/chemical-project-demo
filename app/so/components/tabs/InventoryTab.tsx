@@ -15,7 +15,7 @@ interface InventoryTabProps {
     onEdit: (item: InventoryItem) => void;
     onDelete: (id: number, name: string) => void;
     onPrintQR: (item: InventoryItem) => void;
-    onPrintAllQR: () => void;
+    onPrintAllQR: (items: InventoryItem[]) => void;
     onPrintLocationList: () => void;
 }
 
@@ -113,6 +113,7 @@ export const InventoryTab = ({
     onPrintLocationList,
 }: InventoryTabProps) => {
     const [selectedFilter, setSelectedFilter] = useState<ExpirationStatus | "all">("all");
+    const [typeFilter, setTypeFilter] = useState<"all" | "unit" | "bulk">("all");
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
@@ -128,6 +129,11 @@ export const InventoryTab = ({
         setCurrentPage(1);
     };
 
+    const handleTypeFilterChange = (filter: "all" | "unit" | "bulk") => {
+        setTypeFilter(filter);
+        setCurrentPage(1);
+    };
+
     // Hitung jumlah per status untuk badge filter
     const counts = useMemo(() => {
         const result: Record<ExpirationStatus, number> = {
@@ -139,12 +145,25 @@ export const InventoryTab = ({
         return result;
     }, [filteredInventory]);
 
+    // Hitung jumlah per type untuk badge filter
+    const typeCounts = useMemo(() => ({
+        unit: filteredInventory.filter(i => !i.is_bulk).length,
+        bulk: filteredInventory.filter(i => i.is_bulk).length,
+    }), [filteredInventory]);
+
+    // Filter by type first, then expiration
+    const filteredByType = useMemo(() => {
+        if (typeFilter === "all") return filteredInventory;
+        if (typeFilter === "bulk") return filteredInventory.filter(i => i.is_bulk);
+        return filteredInventory.filter(i => !i.is_bulk);
+    }, [filteredInventory, typeFilter]);
+
     const filteredByExpiration = useMemo(() => {
-        if (selectedFilter === "all") return filteredInventory;
-        return filteredInventory.filter(item =>
+        if (selectedFilter === "all") return filteredByType;
+        return filteredByType.filter(item =>
             getExpirationInfo(item.expired_date_fixed).status === selectedFilter
         );
-    }, [filteredInventory, selectedFilter]);
+    }, [filteredByType, selectedFilter]);
 
     const totalPages = Math.max(1, Math.ceil(filteredByExpiration.length / itemsPerPage));
     const activePage = Math.min(currentPage, totalPages);
@@ -198,12 +217,17 @@ export const InventoryTab = ({
                             <span className="hidden sm:inline">Location List</span>
                         </button>
                         <button
-                            onClick={onPrintAllQR}
+                            onClick={() => onPrintAllQR(filteredByType)}
                             className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-all"
-                            title="Print All QR"
+                            title={`Print ${typeFilter === "all" ? "All" : typeFilter === "bulk" ? "Bulk" : "Unit"} QR (${filteredByType.length} item)`}
                         >
                             <IconPrint />
-                            <span className="hidden sm:inline">Print All QR</span>
+                            <span className="hidden sm:inline">
+                                Print {typeFilter === "bulk" ? "Bulk" : typeFilter === "unit" ? "Unit" : "All"} QR
+                                <span className="ml-1 px-1.5 py-0.5 rounded-full bg-slate-100 text-slate-500 text-[10px] font-bold">
+                                    {filteredByType.length}
+                                </span>
+                            </span>
                         </button>
                         <button
                             onClick={onAdd}
@@ -219,6 +243,58 @@ export const InventoryTab = ({
             {/* ── FILTER PILLS ─────────────────────────────────────────── */}
             <div className="px-6 py-3 border-b border-slate-100 overflow-x-auto">
                 <div className="flex items-center gap-2 min-w-max">
+                    {/* ── Type filter group ── */}
+                    <button
+                        onClick={() => handleTypeFilterChange("all")}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 ${
+                            typeFilter === "all"
+                                ? "bg-navy-800 text-white border-navy-800"
+                                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
+                        }`}
+                    >
+                        Semua Tipe
+                        <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            typeFilter === "all" ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+                        }`}>
+                            {filteredInventory.length}
+                        </span>
+                    </button>
+                    <button
+                        onClick={() => handleTypeFilterChange("unit")}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 ${
+                            typeFilter === "unit"
+                                ? "bg-sky-600 text-white border-sky-600"
+                                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
+                        }`}
+                    >
+                        <span className={`w-1.5 h-1.5 rounded-full ${typeFilter === "unit" ? "bg-sky-200" : "bg-slate-300"}`} />
+                        Unit / Pieces
+                        <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            typeFilter === "unit" ? "bg-sky-500/30 text-sky-100" : "bg-slate-100 text-slate-500"
+                        }`}>
+                            {typeCounts.unit}
+                        </span>
+                    </button>
+                    <button
+                        onClick={() => handleTypeFilterChange("bulk")}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 ${
+                            typeFilter === "bulk"
+                                ? "bg-violet-600 text-white border-violet-600"
+                                : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
+                        }`}
+                    >
+                        <span className={`w-1.5 h-1.5 rounded-full ${typeFilter === "bulk" ? "bg-violet-200" : "bg-slate-300"}`} />
+                        Bulk / Liters
+                        <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                            typeFilter === "bulk" ? "bg-violet-500/30 text-violet-100" : "bg-slate-100 text-slate-500"
+                        }`}>
+                            {typeCounts.bulk}
+                        </span>
+                    </button>
+
+                    {/* Divider */}
+                    <div className="w-px h-4 bg-slate-200 mx-1" />
+
                     {/* "Semua" pill */}
                     <button
                         onClick={() => handleFilterChange("all")}

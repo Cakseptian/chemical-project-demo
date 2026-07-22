@@ -163,7 +163,9 @@ export const printAllQR = async (inventoryList: InventoryItem[]): Promise<void> 
   let allLabels: { item: InventoryItem; uid: string }[] = [];
   try {
     for (const item of activeItems) {
-      const qty = Math.max(0, Number(item.quantity) || 0);
+      // Bulk/liters items = 1 container label regardless of volume.
+      // Unit/pieces items = one label per physical unit.
+      const qty = item.is_bulk ? 1 : Math.max(0, Number(item.quantity) || 0);
       if (qty === 0) continue;
       const unitIds = await createUnitRows(item.id, qty);
       allLabels = allLabels.concat(unitIds.map((uid) => ({ item, uid })));
