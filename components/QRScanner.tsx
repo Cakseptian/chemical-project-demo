@@ -286,17 +286,17 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
         )}
 
         {!isStarted ? (
-          <button
+          <button type="button"
             onClick={startScanner}
-            className="w-full inline-flex items-center justify-center gap-2 bg-[#001e2b] hover:bg-[#00293b] text-white font-semibold py-2.5 px-4 rounded-lg transition-all active:scale-95 text-sm"
+            className="w-full inline-flex items-center justify-center gap-2 bg-[#001e2b] hover:bg-[#00293b] text-white font-semibold py-2.5 px-4 rounded-lg transition-colors active:scale-95 text-sm"
           >
             <IconCamera />
             Mulai Scan
           </button>
         ) : (
-          <button
+          <button type="button"
             onClick={stopScanner}
-            className="w-full inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-lg transition-all active:scale-95 text-sm border border-slate-200"
+            className="w-full inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 px-4 rounded-lg transition-colors active:scale-95 text-sm border border-slate-200"
           >
             <IconStop />
             Stop Kamera
@@ -316,9 +316,9 @@ export default function QRScanner({ onScanSuccess }: QRScannerProps) {
           className="hidden"
           ref={fileInputRef}
         />
-        <button
+        <button type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="w-full inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-600 font-semibold py-2.5 px-4 rounded-lg transition-all active:scale-95 text-sm border border-slate-200 hover:border-slate-300"
+          className="w-full inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-600 font-semibold py-2.5 px-4 rounded-lg transition-colors active:scale-95 text-sm border border-slate-200 hover:border-slate-300"
         >
           <IconUpload />
           Upload QR Image

@@ -55,9 +55,9 @@ export const ScannerTab = ({
                     </div>
                     <h3 className="text-base font-bold text-slate-900 mb-1">Stock Opname</h3>
                     <p className="text-slate-500 text-sm mb-6">Arahkan kamera ke QR Code barang untuk memulai audit stok fisik.</p>
-                    <button
+                    <button type="button"
                         onClick={() => setIsScanning(true)}
-                        className="w-full inline-flex items-center justify-center bg-accent hover:bg-accent-dark text-navy-800 font-bold py-3 px-6 rounded-lg transition-all active:scale-95 text-sm"
+                        className="w-full inline-flex items-center justify-center bg-accent hover:bg-accent-dark text-navy-800 font-bold py-3 px-6 rounded-lg transition-colors active:scale-95 text-sm"
                     >
                         Mulai Scanning
                     </button>
@@ -80,7 +80,7 @@ export const ScannerTab = ({
                         <QRScanner onScanSuccess={handleScanSuccess} />
                     </div>
                     <div className="px-4 pb-4">
-                        <button
+                        <button type="button"
                             onClick={() => setIsScanning(false)}
                             className="w-full bg-white border border-slate-200 hover:bg-red-50 hover:border-red-200 hover:text-red-700 text-slate-600 font-semibold py-2.5 rounded-lg transition-colors text-sm"
                         >
@@ -106,7 +106,7 @@ export const ScannerTab = ({
                     </div>
                     <h3 className="text-base font-bold text-red-600 mb-1">Terjadi Kesalahan</h3>
                     <p className="text-slate-500 text-sm mb-6">{errorMsg}</p>
-                    <button
+                    <button type="button"
                         onClick={resetScanTampilan}
                         className="w-full bg-navy-800 hover:bg-navy-700 text-white font-semibold py-2.5 rounded-lg transition-colors text-sm"
                     >
@@ -149,21 +149,21 @@ export const ScannerTab = ({
                             type="number"
                             value={stokFisik}
                             onChange={(e) => setStokFisik(e.target.value ? Number(e.target.value) : "")}
-                            className="w-full bg-slate-50 border border-slate-200 focus:border-navy-800 focus:ring-2 focus:ring-navy-800/20 rounded-lg px-4 py-4 text-3xl font-bold text-center text-slate-900 outline-none transition-all"
+                            className="w-full bg-slate-50 border border-slate-200 focus:border-navy-800 focus:ring-2 focus:ring-navy-800/20 rounded-lg px-4 py-4 text-3xl font-bold text-center text-slate-900 outline-none transition-colors"
                             placeholder="0"
                             autoFocus
                         />
                         <div className="flex gap-3 mt-5">
-                            <button
+                            <button type="button"
                                 onClick={resetScanTampilan}
-                                className="flex-1 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold py-2.5 rounded-lg transition-all text-sm"
+                                className="flex-1 bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold py-2.5 rounded-lg transition-colors text-sm"
                             >
                                 Batal
                             </button>
-                            <button
+                            <button type="button"
                                 onClick={handleUpdateStok}
                                 disabled={isSubmitting}
-                                className="flex-1 bg-accent hover:bg-accent-dark disabled:bg-slate-200 disabled:text-slate-400 text-navy-800 font-bold py-2.5 rounded-lg transition-all active:scale-95 text-sm"
+                                className="flex-1 bg-accent hover:bg-accent-dark disabled:bg-slate-200 disabled:text-slate-400 text-navy-800 font-bold py-2.5 rounded-lg transition-colors active:scale-95 text-sm"
                             >
                                 {isSubmitting ? "Menyimpan..." : "Simpan Audit"}
                             </button>

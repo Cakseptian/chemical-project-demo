@@ -67,7 +67,7 @@ export const CartDrawer = ({
                             {cart.length} {cart.length === 1 ? "item" : "items"} siap diproses
                         </p>
                     </div>
-                    <button
+                    <button type="button"
                         onClick={onClose}
                         className="w-9 h-9 bg-white/10 hover:bg-white/20 active:bg-white/30 text-white rounded-full flex items-center justify-center transition-colors focus:outline-none"
                         aria-label="Tutup"
@@ -130,14 +130,14 @@ export const CartDrawer = ({
                                     </div>
                                 ) : (
                                     <div className="flex items-center bg-slate-100 rounded-lg overflow-hidden border border-slate-200 h-8 shadow-inner">
-                                        <button
+                                        <button type="button"
                                             onClick={() => onUpdateQuantity(item.id, -1)}
                                             className="w-8 h-full flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-800 font-black transition-colors text-sm"
                                         >
                                             -
                                         </button>
                                         <span className="w-6 text-center font-bold text-slate-800 text-xs">{item.quantity_to_take}</span>
-                                        <button
+                                        <button type="button"
                                             onClick={() => onUpdateQuantity(item.id, 1)}
                                             className="w-8 h-full flex items-center justify-center text-slate-500 hover:bg-slate-200 hover:text-slate-800 font-black transition-colors text-sm"
                                         >
@@ -145,7 +145,7 @@ export const CartDrawer = ({
                                         </button>
                                     </div>
                                 )}
-                                <button
+                                <button type="button"
                                     onClick={() => onRemoveFromCart(item.id)}
                                     className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors focus:outline-none"
                                     title="Hapus dari keranjang"
@@ -157,9 +157,9 @@ export const CartDrawer = ({
                     ))}
 
                     {/* Add more button */}
-                    <button
+                    <button type="button"
                         onClick={onAddMore}
-                        className="w-full bg-white border border-dashed border-[#00ed64] hover:border-[#00b545] text-[#00684a] hover:bg-emerald-50/30 font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all text-xs focus:outline-none"
+                        className="w-full bg-white border border-dashed border-[#00ed64] hover:border-[#00b545] text-[#00684a] hover:bg-emerald-50/30 font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors text-xs focus:outline-none"
                     >
                         <IconCamera />
                         Tambah Barang Lain
@@ -168,17 +168,17 @@ export const CartDrawer = ({
 
                 {/* Footer actions */}
                 <div className="sticky bottom-0 bg-white border-t border-slate-100 p-4 shrink-0 flex gap-3">
-                    <button
+                    <button type="button"
                         onClick={onReset}
                         disabled={isSubmitting}
-                        className="flex-1 bg-white border border-slate-200 text-slate-600 hover:text-slate-800 hover:bg-slate-50 py-3 rounded-full text-xs font-semibold transition-all focus:outline-none disabled:opacity-40"
+                        className="flex-1 bg-white border border-slate-200 text-slate-600 hover:text-slate-800 hover:bg-slate-50 py-3 rounded-full text-xs font-semibold transition-colors focus:outline-none disabled:opacity-40"
                     >
                         Reset
                     </button>
-                    <button
+                    <button type="button"
                         onClick={onCheckout}
                         disabled={isSubmitting || !isProfileComplete}
-                        className="flex-[2] bg-[#00ed64] hover:bg-[#00b545] text-[#001e2b] font-bold py-3 rounded-full shadow-lg shadow-[#00ed64]/20 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2 text-xs focus:outline-none"
+                        className="flex-[2] bg-[#00ed64] hover:bg-[#00b545] text-[#001e2b] font-bold py-3 rounded-full shadow-lg shadow-[#00ed64]/20 transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2 text-xs focus:outline-none"
                     >
                         {isSubmitting ? (
                             <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#001e2b] border-t-transparent" />

@@ -118,7 +118,7 @@ export const RequestsTab = ({ requestList, isLoading, onSelesaikan, onHapus }: R
                                         <td className="px-6 py-4">
                                             <div className="flex items-center justify-end gap-1">
                                                 {req.status === "PENDING" && (
-                                                    <button
+                                                    <button type="button"
                                                         onClick={() => onSelesaikan(req.id, req.nama_barang)}
                                                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 rounded-lg transition-colors"
                                                         title="Tandai Selesai"
@@ -127,7 +127,7 @@ export const RequestsTab = ({ requestList, isLoading, onSelesaikan, onHapus }: R
                                                         Selesaikan
                                                     </button>
                                                 )}
-                                                <button
+                                                <button type="button"
                                                     onClick={() => onHapus(req.id)}
                                                     className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
                                                     title="Hapus"

@@ -212,7 +212,7 @@ export const ReturnModal = ({
                         <h2 className="font-extrabold text-xl tracking-tight leading-normal uppercase">Return borrowed item</h2>
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Pengembalian Barang Pinjaman</p>
                     </div>
-                    <button
+                    <button type="button"
                         onClick={onClose}
                         aria-label="Tutup modal"
                         className="w-10 h-10 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
@@ -282,13 +282,13 @@ export const ReturnModal = ({
                                             </p>
                                             {card.allConsumedConfirming ? (
                                                 <div className="flex gap-2">
-                                                    <button
+                                                    <button type="button"
                                                         onClick={() => patchCard(loan.id, { allConsumedConfirming: false })}
                                                         className="flex-1 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg transition-colors hover:bg-slate-50 cursor-pointer focus:outline-none"
                                                     >
                                                         Batal
                                                     </button>
-                                                    <button
+                                                    <button type="button"
                                                         onClick={() => handleAllConsumed(loan)}
                                                         disabled={isReturning}
                                                         className="flex-1 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50 cursor-pointer focus:outline-none"
@@ -297,7 +297,7 @@ export const ReturnModal = ({
                                                     </button>
                                                 </div>
                                             ) : (
-                                                <button
+                                                <button type="button"
                                                     onClick={() => patchCard(loan.id, { allConsumedConfirming: true })}
                                                     disabled={isReturning}
                                                     className="w-full py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50 cursor-pointer focus:outline-none"
@@ -324,7 +324,7 @@ export const ReturnModal = ({
                                                                 <span className="flex-1 truncate">{uid.slice(0, 20)}…</span>
                                                                 <span className="font-bold shrink-0">{unitStatusLabel(state)}</span>
                                                                 {state === "pending" && (
-                                                                    <button
+                                                                    <button type="button"
                                                                         onClick={() => markUnit(loan.id, uid, "consumed")}
                                                                         className="shrink-0 px-2 py-0.5 text-[10px] font-bold text-red-600 bg-red-50 border border-red-200 rounded hover:bg-red-100 cursor-pointer focus:outline-none"
                                                                         title="Tandai habis"
@@ -333,7 +333,7 @@ export const ReturnModal = ({
                                                                     </button>
                                                                 )}
                                                                 {state !== "pending" && (
-                                                                    <button
+                                                                    <button type="button"
                                                                         onClick={() => markUnit(loan.id, uid, "pending")}
                                                                         className="shrink-0 px-2 py-0.5 text-[10px] font-semibold text-slate-500 bg-slate-50 border border-slate-200 rounded hover:bg-slate-100 cursor-pointer focus:outline-none"
                                                                         title="Batalkan"
@@ -368,7 +368,7 @@ export const ReturnModal = ({
                                                             className="flex-1 min-w-0 px-3 py-2 text-xs font-mono border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00ed64]/40 focus:border-[#00ed64]"
                                                             autoComplete="off"
                                                         />
-                                                        <button
+                                                        <button type="button"
                                                             onClick={() => card.scanInput.trim() && handleScan(loan, card.scanInput.trim())}
                                                             disabled={!card.scanInput.trim()}
                                                             className="px-3 py-2 bg-[#00ed64] hover:bg-[#00b545] text-[#001e2b] text-xs font-black rounded-lg transition-colors disabled:opacity-40 cursor-pointer focus:outline-none shrink-0"
@@ -385,7 +385,7 @@ export const ReturnModal = ({
                                             {/* Submit / All Consumed */}
                                             <div className="flex gap-2">
                                                 {resolved && (
-                                                    <button
+                                                    <button type="button"
                                                         onClick={() => handleSubmit(loan)}
                                                         disabled={isReturning}
                                                         className="flex-1 py-2 text-xs font-black text-[#001e2b] bg-[#00ed64] hover:bg-[#00b545] rounded-lg transition-colors disabled:opacity-40 cursor-pointer focus:outline-none"
@@ -395,13 +395,13 @@ export const ReturnModal = ({
                                                 )}
                                                 {card.allConsumedConfirming ? (
                                                     <div className="flex-1 flex gap-2">
-                                                        <button
+                                                        <button type="button"
                                                             onClick={() => patchCard(loan.id, { allConsumedConfirming: false })}
                                                             className="flex-1 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg cursor-pointer focus:outline-none"
                                                         >
                                                             Batal
                                                         </button>
-                                                        <button
+                                                        <button type="button"
                                                             onClick={() => handleAllConsumed(loan)}
                                                             disabled={isReturning}
                                                             className="flex-1 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors disabled:opacity-50 cursor-pointer focus:outline-none"
@@ -410,7 +410,7 @@ export const ReturnModal = ({
                                                         </button>
                                                     </div>
                                                 ) : (
-                                                    <button
+                                                    <button type="button"
                                                         onClick={() => patchCard(loan.id, { allConsumedConfirming: true })}
                                                         disabled={isReturning}
                                                         className={`py-2 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors disabled:opacity-40 cursor-pointer focus:outline-none ${resolved ? "px-4" : "flex-1"}`}

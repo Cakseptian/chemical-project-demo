@@ -173,7 +173,7 @@ export const DashboardTab = ({ inventoryList, dashboardStats, sbaAlerts, history
                                 placeholder="Cari barang atau part number..."
                                 value={sbaSearch}
                                 onChange={(e) => { setSbaSearch(e.target.value); setCurrentPage(1); }}
-                                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all font-medium"
+                                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-colors font-medium"
                             />
                         </div>
 
@@ -182,7 +182,7 @@ export const DashboardTab = ({ inventoryList, dashboardStats, sbaAlerts, history
                             <button
                                 type="button"
                                 onClick={() => { setSbaFilter("all"); setCurrentPage(1); }}
-                                className={`px-2.5 py-1 rounded text-xs font-semibold transition-all ${sbaFilter === "all"
+                                className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors ${sbaFilter === "all"
                                     ? "bg-navy-800 text-white shadow-sm"
                                     : "text-slate-500 hover:text-slate-900"
                                     }`}
@@ -192,7 +192,7 @@ export const DashboardTab = ({ inventoryList, dashboardStats, sbaAlerts, history
                             <button
                                 type="button"
                                 onClick={() => { setSbaFilter("critical"); setCurrentPage(1); }}
-                                className={`px-2.5 py-1 rounded text-xs font-semibold transition-all flex items-center gap-1 ${sbaFilter === "critical"
+                                className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors flex items-center gap-1 ${sbaFilter === "critical"
                                     ? "bg-red-600 text-white shadow-sm"
                                     : "text-slate-500 hover:text-red-600"
                                     }`}
@@ -202,7 +202,7 @@ export const DashboardTab = ({ inventoryList, dashboardStats, sbaAlerts, history
                             <button
                                 type="button"
                                 onClick={() => { setSbaFilter("with-data"); setCurrentPage(1); }}
-                                className={`px-2.5 py-1 rounded text-xs font-semibold transition-all flex items-center gap-1 ${sbaFilter === "with-data"
+                                className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors flex items-center gap-1 ${sbaFilter === "with-data"
                                     ? "bg-blue-600 text-white shadow-sm"
                                     : "text-slate-500 hover:text-blue-600"
                                     }`}
@@ -333,7 +333,7 @@ export const DashboardTab = ({ inventoryList, dashboardStats, sbaAlerts, history
                                             <button
                                                 type="button"
                                                 onClick={() => { setSbaSearch(""); setSbaFilter("all"); setCurrentPage(1); }}
-                                                className="mt-3 px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold rounded-lg transition-all"
+                                                className="mt-3 px-4 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-xs font-bold rounded-lg transition-colors"
                                             >
                                                 Reset Filter
                                             </button>
@@ -372,7 +372,7 @@ export const DashboardTab = ({ inventoryList, dashboardStats, sbaAlerts, history
                                     key={pageNum}
                                     type="button"
                                     onClick={() => setCurrentPage(pageNum)}
-                                    className={`min-w-[32px] h-8 px-2.5 rounded-lg text-xs font-bold transition-all ${activePage === pageNum
+                                    className={`min-w-[32px] h-8 px-2.5 rounded-lg text-xs font-bold transition-colors ${activePage === pageNum
                                         ? "bg-navy-800 text-white shadow-sm"
                                         : "border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                                         }`}
@@ -439,14 +439,14 @@ export const DashboardTab = ({ inventoryList, dashboardStats, sbaAlerts, history
                             <button
                                 type="button"
                                 onClick={() => setLoansView("worker")}
-                                className={`px-2.5 py-1 rounded text-xs font-semibold transition-all ${loansView === "worker" ? "bg-[#001e2b] text-white shadow-sm" : "text-slate-500 hover:text-slate-900"}`}
+                                className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors ${loansView === "worker" ? "bg-[#001e2b] text-white shadow-sm" : "text-slate-500 hover:text-slate-900"}`}
                             >
                                 By Worker
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setLoansView("item")}
-                                className={`px-2.5 py-1 rounded text-xs font-semibold transition-all ${loansView === "item" ? "bg-[#001e2b] text-white shadow-sm" : "text-slate-500 hover:text-slate-900"}`}
+                                className={`px-2.5 py-1 rounded text-xs font-semibold transition-colors ${loansView === "item" ? "bg-[#001e2b] text-white shadow-sm" : "text-slate-500 hover:text-slate-900"}`}
                             >
                                 By Item
                             </button>
@@ -562,7 +562,7 @@ export const DashboardTab = ({ inventoryList, dashboardStats, sbaAlerts, history
                                     </div>
                                     <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                                         <div
-                                            className="h-full bg-slate-900 rounded-full transition-all duration-1000"
+                                            className="h-full bg-slate-900 rounded-full transition-colors duration-1000"
                                             style={{ width: `${percentage}%` }}
                                         />
                                     </div>

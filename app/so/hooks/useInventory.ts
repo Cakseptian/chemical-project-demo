@@ -30,12 +30,15 @@ export const useInventory = () => {
 
   const fetchInventory = async () => {
     setIsLoadingData(true);
-    const { data, error } = await supabase
-      .from("inventory")
-      .select("*")
-      .order("part_name", { ascending: true });
-    if (!error && data) setInventoryList(data);
-    setIsLoadingData(false);
+    try {
+      const { data, error } = await supabase
+        .from("inventory")
+        .select("*")
+        .order("part_name", { ascending: true });
+      if (!error && data) setInventoryList(data);
+    } finally {
+      setIsLoadingData(false);
+    }
   };
 
   const handleHapusBarang = async (id: number, namaBarang: string) => {

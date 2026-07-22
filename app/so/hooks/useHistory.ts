@@ -9,12 +9,15 @@ export const useHistory = () => {
 
   const fetchHistory = async () => {
     setIsLoadingData(true);
-    const { data, error } = await supabase
-      .from("transactions")
-      .select("*")
-      .order("created_at", { ascending: false });
-    if (!error && data) setHistoryList(data);
-    setIsLoadingData(false);
+    try {
+      const { data, error } = await supabase
+        .from("transactions")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (!error && data) setHistoryList(data);
+    } finally {
+      setIsLoadingData(false);
+    }
   };
 
   return {

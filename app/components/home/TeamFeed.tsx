@@ -17,7 +17,7 @@ export const TeamFeed = ({ teamActivities, isLoadingTeam, onRefresh }: TeamFeedP
                     <h3 className="text-sm font-bold text-slate-900">Recent from your team</h3>
                     <p className="text-xs text-slate-500 mt-0.5">Aktivitas penyesuaian terbaru di hangar</p>
                 </div>
-                <button
+                <button type="button"
                     onClick={onRefresh}
                     className="p-1.5 hover:bg-slate-100 rounded-md transition-colors text-slate-400 hover:text-slate-600"
                     title="Muat Ulang"

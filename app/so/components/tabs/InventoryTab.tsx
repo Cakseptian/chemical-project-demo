@@ -202,23 +202,23 @@ export const InventoryTab = ({
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Cari nama atau part number..."
-                            className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-navy-800/20 focus:border-navy-800 transition-all"
+                            className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-navy-800/20 focus:border-navy-800 transition-colors"
                         />
                     </div>
 
                     {/* Action buttons */}
                     <div className="flex items-center gap-2 sm:ml-auto">
-                        <button
+                        <button type="button"
                             onClick={onPrintLocationList}
-                            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-all"
+                            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-colors"
                             title="Print Location List"
                         >
                             <IconList />
                             <span className="hidden sm:inline">Location List</span>
                         </button>
-                        <button
+                        <button type="button"
                             onClick={() => onPrintAllQR(filteredByType)}
-                            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-all"
+                            className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-colors"
                             title={`Print ${typeFilter === "all" ? "All" : typeFilter === "bulk" ? "Bulk" : "Unit"} QR (${filteredByType.length} item)`}
                         >
                             <IconPrint />
@@ -229,9 +229,9 @@ export const InventoryTab = ({
                                 </span>
                             </span>
                         </button>
-                        <button
+                        <button type="button"
                             onClick={onAdd}
-                            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-navy-800 bg-accent hover:bg-accent-dark rounded-lg transition-all active:scale-95"
+                            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-navy-800 bg-accent hover:bg-accent-dark rounded-lg transition-colors active:scale-95"
                         >
                             <IconPlus />
                             Add Item
@@ -244,9 +244,9 @@ export const InventoryTab = ({
             <div className="px-6 py-3 border-b border-slate-100 overflow-x-auto">
                 <div className="flex items-center gap-2 min-w-max">
                     {/* ── Type filter group ── */}
-                    <button
+                    <button type="button"
                         onClick={() => handleTypeFilterChange("all")}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 ${
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-colors duration-150 ${
                             typeFilter === "all"
                                 ? "bg-navy-800 text-white border-navy-800"
                                 : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
@@ -259,9 +259,9 @@ export const InventoryTab = ({
                             {filteredInventory.length}
                         </span>
                     </button>
-                    <button
+                    <button type="button"
                         onClick={() => handleTypeFilterChange("unit")}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 ${
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-colors duration-150 ${
                             typeFilter === "unit"
                                 ? "bg-sky-600 text-white border-sky-600"
                                 : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
@@ -275,9 +275,9 @@ export const InventoryTab = ({
                             {typeCounts.unit}
                         </span>
                     </button>
-                    <button
+                    <button type="button"
                         onClick={() => handleTypeFilterChange("bulk")}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 ${
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-colors duration-150 ${
                             typeFilter === "bulk"
                                 ? "bg-violet-600 text-white border-violet-600"
                                 : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
@@ -296,9 +296,9 @@ export const InventoryTab = ({
                     <div className="w-px h-4 bg-slate-200 mx-1" />
 
                     {/* "Semua" pill */}
-                    <button
+                    <button type="button"
                         onClick={() => handleFilterChange("all")}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 ${
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-colors duration-150 ${
                             selectedFilter === "all"
                                 ? "bg-navy-800 text-white border-navy-800"
                                 : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
@@ -316,10 +316,10 @@ export const InventoryTab = ({
                         const count = counts[status];
                         const isActive = selectedFilter === status;
                         return (
-                            <button
+                            <button type="button"
                                 key={status}
                                 onClick={() => handleFilterChange(status)}
-                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all duration-150 ${
+                                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition-colors duration-150 ${
                                     isActive
                                         ? activeClass
                                         : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
@@ -452,21 +452,21 @@ export const InventoryTab = ({
                                                         <IconLink />
                                                     </a>
                                                 )}
-                                                <button
+                                                <button type="button"
                                                     onClick={() => onPrintQR(item)}
                                                     className="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
                                                     title="Print QR"
                                                 >
                                                     <IconQR />
                                                 </button>
-                                                <button
+                                                <button type="button"
                                                     onClick={() => onEdit(item)}
                                                     className="p-2 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 transition-colors"
                                                     title="Edit"
                                                 >
                                                     <IconEdit />
                                                 </button>
-                                                <button
+                                                <button type="button"
                                                     onClick={() => onDelete(item.id, item.part_name)}
                                                     className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
                                                     title="Hapus"

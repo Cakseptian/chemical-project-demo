@@ -9,13 +9,16 @@ export const useRequests = () => {
 
   const fetchRequests = async () => {
     setIsLoadingData(true);
-    const { data } = await supabase
-      .from("item_requests")
-      .select("*")
-      .order("status", { ascending: true })
-      .order("created_at", { ascending: false });
-    if (data) setRequestList(data);
-    setIsLoadingData(false);
+    try {
+      const { data } = await supabase
+        .from("item_requests")
+        .select("*")
+        .order("status", { ascending: true })
+        .order("created_at", { ascending: false });
+      if (data) setRequestList(data);
+    } finally {
+      setIsLoadingData(false);
+    }
   };
 
   const handleSelesaikanRequest = async (id: number, namaBarang: string) => {

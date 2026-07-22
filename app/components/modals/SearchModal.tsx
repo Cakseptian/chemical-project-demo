@@ -66,7 +66,7 @@ export const SearchModal = ({
                         <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wider">Katalog Barang</h2>
                         <p className="text-xs text-slate-400 mt-0.5">Cari posisi rak &amp; ketersediaan stok</p>
                     </div>
-                    <button
+                    <button type="button"
                         onClick={onClose}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-200"
                         aria-label="Tutup"
@@ -86,7 +86,7 @@ export const SearchModal = ({
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Cari nama barang atau part number..."
-                            className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-all"
+                            className="w-full pl-9 pr-4 py-2 text-sm bg-white border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition-colors"
                             autoFocus
                         />
                     </div>

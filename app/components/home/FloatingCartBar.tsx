@@ -16,7 +16,7 @@ export const FloatingCartBar = ({ cartLength, onOpen }: FloatingCartBarProps) =>
                 <button
                     type="button"
                     onClick={onOpen}
-                    className="w-full bg-[#00ed64] hover:bg-[#00b545] active:bg-[#00b545] text-[#001e2b] rounded-xl p-4 flex items-center justify-between shadow-lg shadow-[#00ed64]/20 transition-all group focus:outline-none"
+                    className="w-full bg-[#00ed64] hover:bg-[#00b545] active:bg-[#00b545] text-[#001e2b] rounded-xl p-4 flex items-center justify-between shadow-lg shadow-[#00ed64]/20 transition-colors group focus:outline-none"
                 >
                     <div className="flex items-center gap-3">
                         <div className="relative">

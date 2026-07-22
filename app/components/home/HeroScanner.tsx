@@ -30,7 +30,7 @@ export const HeroScanner = ({
                 <button
                     type="button"
                     onClick={() => setIsScanning(false)}
-                    className="mt-6 w-full bg-slate-100 hover:bg-red-50 text-red-900 hover:text-red-600 font-bold py-3 rounded-full transition-all"
+                    className="mt-6 w-full bg-slate-100 hover:bg-red-50 text-red-900 hover:text-red-600 font-bold py-3 rounded-full transition-colors"
                 >
                     Cancel Scanning
                 </button>
@@ -56,16 +56,16 @@ export const HeroScanner = ({
                 <h3 className="text-lg font-bold text-red-600 mb-2">Failed to Read QR Code</h3>
                 <p className="text-slate-500 text-sm mb-6">{errorMsg}</p>
                 <div className="flex gap-3">
-                    <button
+                    <button type="button"
                         onClick={() => { setErrorMsg(null); setIsScanning(true); }}
-                        className="flex-1 bg-[#00ed64] hover:bg-[#00b545] text-[#001e2b] font-black py-3 rounded-full transition-all shadow-sm"
+                        className="flex-1 bg-[#00ed64] hover:bg-[#00b545] text-[#001e2b] font-black py-3 rounded-full transition-colors shadow-sm"
                     >
                         Retry
                     </button>
                     <button
                         type="button"
                         onClick={() => setErrorMsg(null)}
-                        className="flex-1 bg-slate-100 text-red-900 font-bold py-3 rounded-full hover:bg-slate-200 transition-all"
+                        className="flex-1 bg-slate-100 text-red-900 font-bold py-3 rounded-full hover:bg-slate-200 transition-colors"
                     >
                         Dismiss
                     </button>
@@ -78,7 +78,7 @@ export const HeroScanner = ({
         <button
             type="button"
             onClick={() => setIsScanning(true)}
-            className="w-full bg-[#001e2b] hover:bg-[#00293b] active:bg-[#001520] text-white rounded-2xl p-6 sm:p-8 text-left transition-all mb-6 group relative overflow-hidden focus:outline-none"
+            className="w-full bg-[#001e2b] hover:bg-[#00293b] active:bg-[#001520] text-white rounded-2xl p-6 sm:p-8 text-left transition-colors mb-6 group relative overflow-hidden focus:outline-none"
         >
             <div className="absolute top-0 right-0 w-48 h-48 bg-[#00ed64]/5 rounded-full blur-3xl -mr-12 -mt-12"></div>
             <div className="relative">
@@ -88,7 +88,7 @@ export const HeroScanner = ({
                     </div>
                     <ArrowRight
                         weight="bold"
-                        className="w-5 h-5 text-white/40 group-hover:text-white/80 group-hover:translate-x-0.5 transition-all"
+                        className="w-5 h-5 text-white/40 group-hover:text-white/80 group-hover:translate-x-0.5 transition-colors"
                     />
                 </div>
                 <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight mb-1">Scan to borrow item</h2>
