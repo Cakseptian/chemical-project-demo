@@ -39,26 +39,10 @@ Open [http://localhost:3000](http://localhost:3000) for the borrower view, `/so`
 
 The app requires a Supabase project with the following tables:
 
-- `inventory` — master item list
-- `inventory_units` — per-unit tracking for new QR labels
-- `transactions` — borrow/return/consume history
-- `item_requests` — item request submissions
-
-## Project Structure
-
-```
-app/
-├── page.tsx              # Borrower-facing home (scan, cart, return)
-├── so/                   # Admin dashboard (/so)
-│   ├── hooks/            # Data hooks (inventory, auth, SBA, scanner)
-│   ├── components/       # UI components (tabs, modals)
-│   └── utils/            # Print utilities
-├── hooks/                # Shared hooks (cart, scanner, loans)
-└── components/           # Shared UI components
-lib/
-├── supabase.ts           # Supabase client
-└── sbaCalculator.ts      # SBA forecasting logic
-```
+* **Developed & Engineered by**: Septian Rizqi Arifandi
+* **Original Project Repository**: [github.com/septianshft/Stock-Opname-Project](https://github.com/septianshft/Stock-Opname-Project)
+* **LinkedIn**: [linkedin.com/in/septianrizqi](https://www.linkedin.com/in/septianrizqi)
+* **Email**: [septianrizqi.workmail@gmail.com](mailto:septianrizqi.workmail@gmail.com)
 
 ## License
 
