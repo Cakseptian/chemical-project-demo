@@ -10,9 +10,9 @@ interface NavItemProps {
 }
 
 export const NavItem = ({ id, icon, label, isActive, onClick }: NavItemProps) => (
-    <button
+    <button type="button"
         onClick={onClick}
-        className={`w-full flex items-center gap-2.5 px-3 py-2 transition-all duration-200 rounded-md group text-left ${isActive
+        className={`w-full flex items-center gap-2.5 px-3 py-2 transition-colors duration-200 rounded-md group text-left ${isActive
                 ? "bg-[#00ed64] text-[#001e2b] font-bold shadow-md"
                 : "text-white/60 hover:bg-white/5 hover:text-white/90"
             }`}

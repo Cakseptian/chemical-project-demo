@@ -18,20 +18,19 @@ export const useAuth = () => {
   useEffect(() => {
     const checkSession = async () => {
       setIsLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (session?.user) {
-        // Validate email whitelist
-        if (ADMIN_EMAILS.includes((session.user.email || "").toLowerCase())) {
-          setUser(session.user);
-        } else {
-          // Email tidak di whitelist, sign out
-          await supabase.auth.signOut();
-          setError("Email tidak memiliki akses admin");
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          if (ADMIN_EMAILS.includes((session.user.email || "").toLowerCase())) {
+            setUser(session.user);
+          } else {
+            await supabase.auth.signOut();
+            setError("Email tidak memiliki akses admin");
+          }
         }
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     };
 
     checkSession();

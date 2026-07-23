@@ -27,6 +27,17 @@ export interface InventoryItem {
 }
 
 /**
+ * Inventory Unit - One physical unit, identified by its own UUID
+ * Table: inventory_units
+ */
+export interface InventoryUnit {
+  id: string;           // UUID — encoded in each QR label
+  inventory_id: number;
+  printed_at: string;
+  status: "available" | "loaned" | "consumed";
+}
+
+/**
  * Transaction Log - Riwayat transaksi
  * Table: transactions
  */
@@ -38,13 +49,14 @@ export interface TransactionLog {
   nama_peminjam: string;
   nomor_pegawai?: string | null;
   jumlah: number;
-  transaction_type: 
-    | "LOAN" 
-    | "RETURN" 
-    | "CONSUMED_BULK" 
-    | "RETURN_HABIS" 
-    | "LOST"
-    | "ADMIN_SO";
+  unit_id?: string | null; // UUID of physical unit (null for pre-migration loans)
+  transaction_type:
+  | "LOAN"
+  | "RETURN"
+  | "CONSUMED_BULK"
+  | "RETURN_HABIS"
+  | "LOST"
+  | "ADMIN_SO";
   created_at: string;
 }
 
@@ -109,4 +121,21 @@ export interface SBAAlert extends InventoryItem {
   leadTime: number;
   dataPoints: number;
   positivePeriods: number;
+}
+
+/**
+ * Active loan for admin dashboard — one row per outstanding LOAN transaction
+ * Joined with inventory_units and inventory
+ */
+export interface ActiveLoanAdmin {
+  transaction_id: number;
+  inventory_id: number;
+  unit_id: string | null;
+  part_name: string;
+  part_number: string | null;
+  nama_peminjam: string;
+  nomor_pegawai: string | null;
+  jumlah: number;
+  created_at: string;
+  days_out: number;
 }

@@ -13,46 +13,85 @@ export const useScanner = (addToCart: (item: Omit<CartItem, "quantity_to_take"> 
         setIsLoading(true);
         setErrorMsg(null);
 
-        let finalBarcodeId = decodedText;
+        let finalId = decodedText;
 
         try {
             if (decodedText.startsWith("http")) {
                 const urlObj = new URL(decodedText);
-                finalBarcodeId = urlObj.searchParams.get("scan") || decodedText;
+                finalId = urlObj.searchParams.get("scan") || decodedText;
             } else if (decodedText.includes("?scan=")) {
-                finalBarcodeId = decodedText.split("?scan=")[1];
+                finalId = decodedText.split("?scan=")[1];
             }
         } catch {
             if (decodedText.includes("?scan=")) {
-                finalBarcodeId = decodedText.split("?scan=")[1];
+                finalId = decodedText.split("?scan=")[1];
             }
         }
 
-        finalBarcodeId = decodeURIComponent(finalBarcodeId);
-        finalBarcodeId = finalBarcodeId.replace(/[^a-zA-Z0-9-]/g, "");
+        finalId = decodeURIComponent(finalId).replace(/[^a-zA-Z0-9-]/g, "");
 
         try {
-            const { data, error } = await supabase
-                .from("inventory")
-                .select("*")
-                .eq("barcode_id", finalBarcodeId)
+            // ponytail: try unit lookup first; fall back to barcode_id for old labels
+            const { data: unit, error: unitError } = await supabase
+                .from("inventory_units")
+                .select("id, inventory_id, status")
+                .eq("id", finalId)
                 .maybeSingle();
 
-            if (error) throw error;
-            if (!data) {
-                setErrorMsg(`Item tidak ditemukan. (ID Terbaca: "${finalBarcodeId}")`);
+            if (unitError) throw unitError;
+
+            if (unit) {
+                if (unit.status !== "available") {
+                    setErrorMsg(`Unit ini sedang dipinjam atau sudah dikonsumsi. (ID: "${finalId}")`);
+                    return;
+                }
+                const { data: inv, error: invError } = await supabase
+                    .from("inventory")
+                    .select("*")
+                    .eq("id", unit.inventory_id)
+                    .maybeSingle();
+                if (invError) throw invError;
+                if (!inv) {
+                    setErrorMsg(`Item tidak ditemukan untuk unit ini. (ID: "${finalId}")`);
+                    return;
+                }
+                addToCart({
+                    id: inv.id,
+                    part_name: inv.part_name,
+                    part_number: inv.part_number,
+                    location: inv.location,
+                    max_quantity: Number(inv.quantity),
+                    barcode_id: inv.barcode_id,
+                    is_bulk: inv.is_bulk || false,
+                    uom: inv.uom || "Pieces",
+                    unit_id: unit.id,
+                });
+                return;
+            }
+
+            // Fallback: old barcode_id label
+            const { data: invByBarcode, error: barcodeError } = await supabase
+                .from("inventory")
+                .select("*")
+                .eq("barcode_id", finalId)
+                .maybeSingle();
+
+            if (barcodeError) throw barcodeError;
+            if (!invByBarcode) {
+                setErrorMsg(`Item tidak ditemukan. (ID Terbaca: "${finalId}")`);
                 return;
             }
 
             addToCart({
-                id: data.id,
-                part_name: data.part_name,
-                part_number: data.part_number,
-                location: data.location,
-                max_quantity: Number(data.quantity),
-                barcode_id: data.barcode_id,
-                is_bulk: data.is_bulk || false,
-                uom: data.uom || "Pieces",
+                id: invByBarcode.id,
+                part_name: invByBarcode.part_name,
+                part_number: invByBarcode.part_number,
+                location: invByBarcode.location,
+                max_quantity: Number(invByBarcode.quantity),
+                barcode_id: invByBarcode.barcode_id,
+                is_bulk: invByBarcode.is_bulk || false,
+                uom: invByBarcode.uom || "Pieces",
+                // ponytail: no unit_id for old labels — checkout handles this gracefully
             });
         } catch (err) {
             console.error("System error:", err);
@@ -66,10 +105,9 @@ export const useScanner = (addToCart: (item: Omit<CartItem, "quantity_to_take"> 
     useEffect(() => {
         const timer = setTimeout(() => {
             const params = new URLSearchParams(window.location.search);
-            const scannedBarcodeId = params.get("scan");
-            if (scannedBarcodeId) {
-                let cleanId = decodeURIComponent(scannedBarcodeId);
-                cleanId = cleanId.replace(/[^a-zA-Z0-9-]/g, "");
+            const scannedId = params.get("scan");
+            if (scannedId) {
+                let cleanId = decodeURIComponent(scannedId).replace(/[^a-zA-Z0-9-]/g, "");
                 handleScanSuccess(cleanId);
                 window.history.replaceState({}, document.title, window.location.pathname);
             }

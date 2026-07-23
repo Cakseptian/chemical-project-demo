@@ -36,7 +36,7 @@ const IconDice = () => (
 );
 
 // Kelas input yang konsisten dengan design tokens
-const inputClass = "w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-navy-800/20 focus:border-navy-800 transition-all";
+const inputClass = "w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-navy-800/20 focus:border-navy-800 transition-colors";
 const labelClass = "block text-[10px] font-bold text-slate-400 uppercase tracking-[0.15em] mb-1.5";
 
 export const ItemModal = ({
@@ -79,7 +79,7 @@ export const ItemModal = ({
                             {editId ? "Ubah data master barang." : "Isi form untuk menambah item baru."}
                         </p>
                     </div>
-                    <button
+                    <button type="button"
                         onClick={onClose}
                         className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
                         aria-label="Tutup modal"
@@ -189,13 +189,13 @@ export const ItemModal = ({
                                     required
                                     value={formData.barcode_id}
                                     onChange={(e) => setFormData({ ...formData, barcode_id: e.target.value })}
-                                    className="flex-1 bg-white border border-emerald-200 rounded-lg px-3 py-2 text-xs font-mono font-semibold text-navy-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                                    className="flex-1 bg-white border border-emerald-200 rounded-lg px-3 py-2 text-xs font-mono font-semibold text-navy-800 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors"
                                     placeholder="Unique ID..."
                                 />
                                 <button
                                     type="button"
                                     onClick={onGenerateUUID}
-                                    className="inline-flex items-center gap-1.5 bg-accent hover:bg-accent-dark text-navy-800 px-3 py-2 rounded-lg text-xs font-bold transition-all active:scale-95 shrink-0"
+                                    className="inline-flex items-center gap-1.5 bg-accent hover:bg-accent-dark text-navy-800 px-3 py-2 rounded-lg text-xs font-bold transition-colors active:scale-95 shrink-0"
                                 >
                                     <IconDice />
                                     Gen
@@ -224,14 +224,14 @@ export const ItemModal = ({
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="flex-1 bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-semibold py-2.5 rounded-lg transition-all text-sm"
+                                className="flex-1 bg-white border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 font-semibold py-2.5 rounded-lg transition-colors text-sm"
                             >
                                 Batal
                             </button>
                             <button
                                 type="submit"
                                 disabled={isSaving}
-                                className="flex-1 bg-accent hover:bg-accent-dark text-navy-800 font-bold py-2.5 rounded-lg transition-all active:scale-95 disabled:opacity-50 text-sm"
+                                className="flex-1 bg-accent hover:bg-accent-dark text-navy-800 font-bold py-2.5 rounded-lg transition-colors active:scale-95 disabled:opacity-50 text-sm"
                             >
                                 {isSaving ? "Menyimpan..." : (editId ? "Update" : "Simpan")}
                             </button>

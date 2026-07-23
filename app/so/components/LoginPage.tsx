@@ -56,11 +56,11 @@ export function LoginPage({ onSignIn, error }: LoginPageProps) {
                 )}
 
                 {/* Google button */}
-                <button
+                <button type="button"
                     onClick={handleSignIn}
                     disabled={isLoading}
                     aria-label="Sign in with Google"
-                    className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-900 text-sm font-medium rounded-lg border border-white/10 transition-all duration-150 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[#020817]"
+                    className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-900 text-sm font-medium rounded-lg border border-white/10 transition-colors duration-150 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-[#020817]"
                 >
                     {isLoading ? (
                         <>

@@ -117,7 +117,7 @@ export default function Home() {
                   <p className="text-sm font-semibold text-slate-900 truncate leading-none">{profile.namaPeminjam}</p>
                   <p className="text-xs text-slate-400 font-mono mt-0.5">{profile.nomorPegawai}</p>
                 </div>
-                <button
+                <button type="button"
                   onClick={() => setEditingProfile(true)}
                   className="text-xs font-semibold text-slate-400 hover:text-slate-700 transition-colors shrink-0 px-2 py-1 rounded-lg hover:bg-slate-50"
                 >
@@ -135,7 +135,7 @@ export default function Home() {
                       placeholder="Contoh: 512345"
                       value={profile.nomorPegawai}
                       onChange={(e) => profile.setNomorPegawai(e.target.value)}
-                      className="w-full h-11 px-4 bg-slate-50/50 border border-slate-200 focus:bg-white rounded-lg text-sm font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#00684a] focus:ring-2 focus:ring-[#00ed64]/10 transition-all"
+                      className="w-full h-11 px-4 bg-slate-50/50 border border-slate-200 focus:bg-white rounded-lg text-sm font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#00684a] focus:ring-2 focus:ring-[#00ed64]/10 transition-colors"
                     />
                   </div>
                   <div className="flex-1 w-full">
@@ -145,7 +145,7 @@ export default function Home() {
                       placeholder="Nama Lengkap Anda"
                       value={profile.namaPeminjam}
                       onChange={(e) => profile.setNamaPeminjam(e.target.value)}
-                      className="w-full h-11 px-4 bg-slate-50/50 border border-slate-200 focus:bg-white rounded-lg text-sm font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#00684a] focus:ring-2 focus:ring-[#00ed64]/10 transition-all"
+                      className="w-full h-11 px-4 bg-slate-50/50 border border-slate-200 focus:bg-white rounded-lg text-sm font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:border-[#00684a] focus:ring-2 focus:ring-[#00ed64]/10 transition-colors"
                     />
                   </div>
                 </div>
@@ -160,7 +160,7 @@ export default function Home() {
                     <span />
                   )}
                   {profile.isProfileComplete && editingProfile && (
-                    <button
+                    <button type="button"
                       onClick={() => setEditingProfile(false)}
                       className="text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50"
                     >
@@ -270,7 +270,7 @@ export default function Home() {
           >
             <ToastIcon type={toast.type} />
             <span className="flex-1">{toast.message}</span>
-            <button
+            <button type="button"
               onClick={() => cart.dismissToast(toast.id)}
               className="opacity-60 hover:opacity-100 transition-opacity shrink-0"
               aria-label="Tutup notifikasi"

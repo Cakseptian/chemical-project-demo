@@ -8,6 +8,7 @@ import { useRequests } from "./hooks/useRequests";
 import { useScanner } from "./hooks/useScanner";
 import { useDashboardStats } from "./hooks/useDashboardStats";
 import { useSBAAlerts } from "./hooks/useSBAAlerts";
+import { useActiveLoansAdmin } from "./hooks/useActiveLoansAdmin";
 import { printSingleQR, printAllQR, printLocationList } from "./utils/printUtils";
 import type { InventoryItem } from "./types";
 import { NavItem } from "./components/layout/NavItem";
@@ -76,6 +77,7 @@ export default function AdminDashboard() {
 
   const sbaAlerts = useSBAAlerts(inventoryList, historyList);
   const dashboardStats = useDashboardStats(inventoryList, historyList, requestList, sbaAlerts);
+  const activeLoansAdmin = useActiveLoansAdmin();
 
   useEffect(() => {
     console.info(
@@ -210,7 +212,7 @@ export default function AdminDashboard() {
         <header className="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between flex-shrink-0 z-10">
           <div>
             <div className="flex items-center gap-2 text-xs text-slate-500 mb-0.5">
-              <button onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-1.5 -ml-1.5 text-slate-500 hover:bg-slate-100 rounded-md transition-colors mr-1">
+              <button type="button" onClick={() => setIsSidebarOpen(true)} className="lg:hidden p-1.5 -ml-1.5 text-slate-500 hover:bg-slate-100 rounded-md transition-colors mr-1">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
@@ -229,14 +231,14 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-3">
             <div className="relative">
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-              <button className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors" title="Notifications">
+              <button type="button" className="p-2 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors" title="Notifications">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
                 </svg>
               </button>
             </div>
             {activeTab === "inventory" ? (
-              <button onClick={openAddModal} className="flex items-center gap-1.5 px-3 py-1.5 bg-accent hover:bg-accent-dark text-navy-800 text-sm font-semibold rounded-md transition-colors shadow-sm">
+              <button type="button" onClick={openAddModal} className="flex items-center gap-1.5 px-3 py-1.5 bg-accent hover:bg-accent-dark text-navy-800 text-sm font-semibold rounded-md transition-colors shadow-sm">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
@@ -253,7 +255,7 @@ export default function AdminDashboard() {
         <main className="flex-1 overflow-y-auto" data-lenis-prevent>
           <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
             {activeTab === "dashboard" && (
-              <DashboardTab inventoryList={inventoryList} dashboardStats={dashboardStats} sbaAlerts={sbaAlerts} historyList={historyList} />
+              <DashboardTab inventoryList={inventoryList} dashboardStats={dashboardStats} sbaAlerts={sbaAlerts} historyList={historyList} activeLoansAdmin={activeLoansAdmin} />
             )}
             {activeTab === "scanner" && (
               <ScannerTab
@@ -332,18 +334,18 @@ export default function AdminDashboard() {
                   const val = Math.max(1, Math.min(999, Number(e.target.value) || 1));
                   setBulkPrintTarget(prev => prev ? { ...prev, count: val } : null);
                 }}
-                className="w-full px-4 py-2.5 text-slate-900 font-semibold text-lg border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500 transition-all tabular-nums"
+                className="w-full px-4 py-2.5 text-slate-900 font-semibold text-lg border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500 transition-colors tabular-nums"
                 placeholder="Contoh: 3"
               />
               <p className="mt-1.5 text-xs text-slate-400">Misal: 75 liter di 3 jirigen → masukkan 3</p>
             </div>
 
             <div className="flex gap-2">
-              <button onClick={() => setBulkPrintTarget(null)} className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
+              <button type="button" onClick={() => setBulkPrintTarget(null)} className="flex-1 px-4 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
                 Batal
               </button>
-              <button
-                onClick={() => { printSingleQR(bulkPrintTarget.item, bulkPrintTarget.count); setBulkPrintTarget(null); }}
+              <button type="button"
+                onClick={() => { void printSingleQR(bulkPrintTarget.item, bulkPrintTarget.count); setBulkPrintTarget(null); }}
                 className="flex-1 px-4 py-2.5 text-sm font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-xl transition-colors flex items-center justify-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">

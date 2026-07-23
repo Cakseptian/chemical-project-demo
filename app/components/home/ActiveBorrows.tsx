@@ -18,7 +18,7 @@ export const ActiveBorrows = ({ activeLoans, nomorPegawai, onManageAll, onQuickR
                     <h3 className="text-sm font-bold text-slate-900">Active Borrows</h3>
                     <p className="text-xs text-slate-500 mt-0.5">Barang yang saat ini sedang Anda bawa</p>
                 </div>
-                <button
+                <button type="button"
                     onClick={onManageAll}
                     disabled={!nomorPegawai.trim()}
                     suppressHydrationWarning
@@ -60,7 +60,7 @@ export const ActiveBorrows = ({ activeLoans, nomorPegawai, onManageAll, onQuickR
                                 <button
                                     type="button"
                                     onClick={() => onQuickReturn(loan)}
-                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#00684a] bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 active:scale-95 rounded-lg transition-all shrink-0"
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#00684a] bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 hover:border-emerald-300 active:scale-95 rounded-lg transition-colors shrink-0"
                                 >
                                     <ArrowUUpLeft weight="bold" className="w-3.5 h-3.5" />
                                     Return

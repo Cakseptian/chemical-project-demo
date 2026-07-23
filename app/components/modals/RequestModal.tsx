@@ -42,7 +42,7 @@ export const RequestModal = ({
 
     if (!isOpen) return null;
 
-    const inputBase = "w-full bg-white border rounded-lg px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 transition-all outline-none focus:ring-2 focus:border-slate-400";
+    const inputBase = "w-full bg-white border rounded-lg px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 transition-colors outline-none focus:ring-2 focus:border-slate-400";
     const inputNormal = `${inputBase} border-slate-200 focus:ring-slate-900/10`;
     const inputError = `${inputBase} border-red-300 focus:ring-red-500/10 focus:border-red-400 bg-red-50/30`;
 
@@ -61,7 +61,7 @@ export const RequestModal = ({
                         <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wider">Request Item</h2>
                         <p className="text-xs text-slate-400 mt-0.5">Ajukan barang yang kosong atau tidak tersedia</p>
                     </div>
-                    <button
+                    <button type="button"
                         onClick={onClose}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-200"
                         aria-label="Tutup"
@@ -184,14 +184,14 @@ export const RequestModal = ({
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 px-4 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-all focus:outline-none focus:ring-2 focus:ring-slate-200"
+                            className="flex-1 px-4 py-2 text-sm font-semibold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-200"
                         >
                             Batal
                         </button>
                         <button
                             type="submit"
                             disabled={isSubmittingReq}
-                            className="flex-[2] inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-slate-900 rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-slate-900/20"
+                            className="flex-[2] inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-slate-900 rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors active:scale-95 focus:outline-none focus:ring-2 focus:ring-slate-900/20"
                         >
                             {isSubmittingReq ? (
                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
