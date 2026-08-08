@@ -9,13 +9,21 @@ const ADMIN_EMAILS = process.env.NEXT_PUBLIC_ADMIN_EMAILS
   ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(",").map(email => email.trim().toLowerCase())
   : [];
 
+// Demo mode — bypass auth, masuk sebagai read-only viewer
+const IS_DEMO = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Check session on mount
   useEffect(() => {
+    // Demo mode: skip Supabase auth, langsung masuk sebagai demo viewer
+    if (IS_DEMO) {
+      setIsLoading(false);
+      return;
+    }
+
     const checkSession = async () => {
       setIsLoading(true);
       try {
@@ -35,7 +43,6 @@ export const useAuth = () => {
 
     checkSession();
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         if (ADMIN_EMAILS.includes((session.user.email || "").toLowerCase())) {
@@ -53,7 +60,6 @@ export const useAuth = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Login dengan Google OAuth
   const signInWithGoogle = async () => {
     try {
       setError(null);
@@ -70,11 +76,12 @@ export const useAuth = () => {
     }
   };
 
-  // Logout
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      if (!IS_DEMO) {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+      }
       setUser(null);
     } catch (err) {
       const message = err instanceof Error ? err.message : "Gagal logout";
@@ -86,7 +93,9 @@ export const useAuth = () => {
     user,
     isLoading,
     error,
-    isAuthenticated: !!user,
+    isDemo: IS_DEMO,
+    // Demo mode: always authenticated as read-only viewer
+    isAuthenticated: IS_DEMO ? true : !!user,
     signInWithGoogle,
     signOut,
   };

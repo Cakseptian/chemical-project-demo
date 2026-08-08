@@ -42,8 +42,11 @@ export const useInventory = () => {
   };
 
   const handleHapusBarang = async (id: number, namaBarang: string) => {
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === "true") {
+      alert("⚠️ Demo Mode — Hapus barang tidak tersedia di demo.");
+      return;
+    }
     const isConfirm = window.confirm(`⚠️ YAKIN INGIN MENGHAPUS "${namaBarang}"?\n\nSemua data barang ini akan hilang dari sistem.`);
-    if (!isConfirm) return;
     try {
       const { error } = await supabase.from("inventory").delete().eq("id", id);
       if (error) throw error;
@@ -104,6 +107,10 @@ export const useInventory = () => {
 
   const handleSimpanBarang = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === "true") {
+      alert("⚠️ Demo Mode — Tambah/edit barang tidak tersedia di demo.");
+      return;
+    }
     if (!formData.part_name || !formData.barcode_id || !formData.quantity) {
       return alert("⚠️ Nama Barang, Barcode ID, dan Stok wajib diisi!");
     }

@@ -24,6 +24,7 @@ export default function AdminDashboard() {
   const {
     user,
     isAuthenticated,
+    isDemo,
     isLoading: isAuthLoading,
     error: authError,
     signInWithGoogle,
@@ -157,6 +158,14 @@ export default function AdminDashboard() {
             <p className="text-white/40 text-[10px] font-medium tracking-wide">Control System</p>
           </div>
         </div>
+
+        {/* Demo Mode Banner */}
+        {isDemo && (
+          <div className="mx-3 mt-3 px-3 py-2 bg-amber-400/10 border border-amber-400/30 rounded-lg">
+            <p className="text-amber-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">👁 Demo Mode</p>
+            <p className="text-amber-400/70 text-[10px] leading-snug">Read-only view. Write actions are disabled.</p>
+          </div>
+        )}
 
         <nav className="flex-1 px-3 py-4 overflow-y-auto sidebar-scroll space-y-4" data-lenis-prevent>
           <div>

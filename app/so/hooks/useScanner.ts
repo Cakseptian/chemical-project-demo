@@ -40,6 +40,10 @@ export const useScanner = (onUpdateSuccess: () => void) => {
   };
 
   const handleUpdateStok = async () => {
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === "true") {
+      alert("⚠️ Demo Mode — Update stok tidak tersedia di demo.");
+      return;
+    }
     if (!itemData) return;
     if (stokFisik === "" || stokFisik < 0) {
       alert("⚠️ Masukkan jumlah stok valid!");

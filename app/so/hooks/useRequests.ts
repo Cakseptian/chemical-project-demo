@@ -22,8 +22,11 @@ export const useRequests = () => {
   };
 
   const handleSelesaikanRequest = async (id: number, namaBarang: string) => {
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === "true") {
+      alert("⚠️ Demo Mode — Aksi ini tidak tersedia di demo.");
+      return;
+    }
     const isConfirm = window.confirm(`Tandai request "${namaBarang}" sebagai SELESAI?`);
-    if (!isConfirm) return;
     try {
       const { error } = await supabase.from("item_requests").update({ status: 'SELESAI' }).eq("id", id);
       if (error) throw error;
@@ -34,7 +37,10 @@ export const useRequests = () => {
   };
 
   const handleHapusRequest = async (id: number) => {
-    if (!window.confirm("Hapus log request ini dari database?")) return;
+    if (process.env.NEXT_PUBLIC_DEMO_MODE === "true") {
+      alert("⚠️ Demo Mode — Aksi ini tidak tersedia di demo.");
+      return;
+    }
     try {
       await supabase.from("item_requests").delete().eq("id", id);
       fetchRequests();
