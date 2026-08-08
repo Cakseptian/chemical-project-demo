@@ -38,8 +38,8 @@ export default function RootLayout({
                 animation: 'police-slide 2.8s linear infinite',
               }}
             />
-            {/* Subtle dark overlay for depth */}
-            <div className="absolute inset-0 bg-black/20" />
+            {/* Overlay to tone down the yellow */}
+            <div className="absolute inset-0 bg-black/50" />
             {/* Content */}
             <div className="relative z-10 h-full flex items-center justify-center gap-3 px-4">
               <span
