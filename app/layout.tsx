@@ -27,23 +27,40 @@ export default function RootLayout({
     <html lang="en">
       <body className="min-h-screen flex flex-col bg-slate-50 text-slate-900 antialiased">
         <LenisProvider>
-          {/* Demo Banner */}
-          <div className="w-full bg-amber-400 text-amber-900 text-xs font-semibold text-center py-1.5 px-4 flex items-center justify-center gap-2 shrink-0">
-            <svg className="w-3.5 h-3.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
-            <span>
-              🎯 Portfolio Demo — Data resets periodically. Feel free to explore all features.
-            </span>
-            <a
-              href="https://github.com/septianshft/Stock-Opname-Project"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 hover:text-amber-700 transition-colors ml-1"
-            >
-              View Source →
-            </a>
+          {/* Demo Banner — ZZZ police line style */}
+          <div className="w-full relative overflow-hidden shrink-0" style={{height: '32px'}}>
+            {/* Animated diagonal stripes background */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background: 'repeating-linear-gradient(120deg, #000 0px, #000 20px, #fff 20px, #fff 40px)',
+                backgroundSize: '56px 100%',
+                animation: 'police-slide 1.2s linear infinite',
+              }}
+            />
+            {/* Dark overlay so text is readable */}
+            <div className="absolute inset-0 bg-black/30" />
+            {/* Content */}
+            <div className="relative z-10 h-full flex items-center justify-center gap-3 px-4">
+              <span className="text-[11px] font-black tracking-[0.2em] uppercase text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                ⚠ PORTFOLIO DEMO — Data resets periodically. Feel free to explore.
+              </span>
+              <a
+                href="https://github.com/septianshft/Stock-Opname-Project"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] font-black tracking-widest uppercase text-yellow-300 hover:text-yellow-100 transition-colors drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] underline underline-offset-2 shrink-0"
+              >
+                Source →
+              </a>
+            </div>
           </div>
+          <style>{`
+            @keyframes police-slide {
+              0%   { background-position: 0 0; }
+              100% { background-position: 56px 0; }
+            }
+          `}</style>
 
           <main className="flex-1">
             {children}
