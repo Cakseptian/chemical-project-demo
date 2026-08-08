@@ -2,7 +2,7 @@
 import { supabase } from "@/lib/supabase";
 import type { InventoryItem } from "../types";
 
-const BASE_URL = "https://stock-opname-project-gmf.vercel.app";
+const BASE_URL = "https://chemical-project-demo.vercel.app";
 
 // ==========================================
 // SHARED STYLES
