@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy-900: #001520;
+  --color-navy-800: #001e2b;
+  --color-navy-700: #00293b;
+  --color-navy-600: #003349;
+
+  --color-accent: #00ed64;
+  --color-accent-dark: #00b545;
+}
+
+@keyframes scan {
+
+  0%,
+  100% {
+    transform: translateY(-104px);
+    opacity: 0.4;
+  }
+
+  50% {
+    transform: translateY(104px);
+    opacity: 1;
+  }
+}
+
+/* ── Login page styles ─────────────────────────────────────── */
+.font-inter {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.grid-pattern {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  animation: fade-up 0.6s ease-out forwards;
+}
+
+.fade-up-delay-1 {
+  animation: fade-up 0.6s ease-out 0.1s forwards;
+  opacity: 0;
+}
+
+.fade-up-delay-2 {
+  animation: fade-up 0.6s ease-out 0.2s forwards;
+  opacity: 0;
+}
